@@ -6,8 +6,9 @@ public class Tile : MonoBehaviour
 {
     public int _x;
     public int _y;
+    public bool _isWalkable = true;
 
-    public SpriteRenderer _sr;
-
+    public SpriteRenderer _ground;
+    public SpriteRenderer _movementCell;
 
 }
