@@ -4,11 +4,17 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-    public int _x;
-    public int _y;
+    public Vector2Int _location;
     public bool _isWalkable = true;
 
-    public SpriteRenderer _ground;
-    public SpriteRenderer _movementCell;
+    public float _g { get; set; }
+    public float _h { get; set; }
+    public float _f { get { return _g + _h; } }
+    public NodeState _state { get; set; }
+    public Tile _parentNode { get; set; }
+public enum NodeState { Untested, Open, Closed }
+
+    public SpriteRenderer _groundSR;
+    public SpriteRenderer _movementCellSR;
 
 }

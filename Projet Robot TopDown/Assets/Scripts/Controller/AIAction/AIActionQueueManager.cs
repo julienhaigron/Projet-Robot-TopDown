@@ -8,7 +8,7 @@ public class AIActionQueueManager : MonoBehaviour
     private bool _isActive = false;
     public bool IsActive { get => _isActive; }
 
-    #region
+    #region Singleton
     private static AIActionQueueManager instance = null;
     public static AIActionQueueManager Instance
     {
@@ -21,7 +21,7 @@ public class AIActionQueueManager : MonoBehaviour
             return instance;
         }
     }
-    #endregion Singleton
+    #endregion
 
     public void AddAIActionToQueue(AIAction action)
     {

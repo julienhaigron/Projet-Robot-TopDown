@@ -11,7 +11,22 @@ public class GridManager : MonoBehaviour
 
     public GameObject _gridTilePrefab;
     public GameObject _gridTilePrefabParent;
-    private GameObject[,] _grid;
+    private Tile[,] _grid;
+
+    #region Singleton
+    private static GridManager instance = null;
+    public static GridManager Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                instance = new GridManager();
+            }
+            return instance;
+        }
+    }
+    #endregion
 
     [ContextMenu("CreateGrid")]
     public void CreateGrid()
@@ -24,31 +39,26 @@ public class GridManager : MonoBehaviour
 
         if(_grid != null)
         {
-            foreach(GameObject tile in _grid)
+            foreach(Tile tile in _grid)
             {
-                DestroyImmediate(tile);
+                DestroyImmediate(tile.gameObject);
             }
         }
 
         Vector3 originPos = new Vector3(-_height / 2, 0, -_width/2);
-        _grid = new GameObject[_height, _width];
+        _grid = new Tile[_height, _width];
 
         for (int i = 0; i < _height; i++)
         {
             for (int j = 0; j < _width; j++)
             {
                 GameObject tile = Instantiate(_gridTilePrefab, originPos + new Vector3(i * _gridSpaceSize, 0, j * _gridSpaceSize), Quaternion.identity, _gridTilePrefabParent.transform);
-                tile.GetComponent<Tile>()._x = i;
-                tile.GetComponent<Tile>()._y = j;
-                _grid[i, j] = tile;
+                Tile tileScript = tile.GetComponent<Tile>();
+                tileScript._location = new Vector2Int(i, j);
+                _grid[i, j] = tileScript;
             }
         }
 
-    }
-
-    public GameObject GetTileGameObject(int x, int y)
-    {
-        return _grid[x, y];
     }
 
     public Tile GetTile(int x, int y)
