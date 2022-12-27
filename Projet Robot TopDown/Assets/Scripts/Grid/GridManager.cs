@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using System.Linq;
 
 public class GridManager : MonoBehaviour
 {
@@ -12,6 +13,10 @@ public class GridManager : MonoBehaviour
     public GameObject _gridTilePrefab;
     public GameObject _gridTilePrefabParent;
     private Tile[,] _grid;
+    public Pathfinding _pathfinding;
+
+    //robot movment
+    private List<Tile> _activeMovmentTile;
 
     #region Singleton
     private static GridManager instance = null;
@@ -28,6 +33,11 @@ public class GridManager : MonoBehaviour
     }
     #endregion
 
+    private void Start()
+    {
+        _activeMovmentTile = new List<Tile>();
+    }
+
     [ContextMenu("CreateGrid")]
     public void CreateGrid()
     {
@@ -41,10 +51,12 @@ public class GridManager : MonoBehaviour
         {
             foreach(Tile tile in _grid)
             {
-                DestroyImmediate(tile.gameObject);
+                if(tile != null)
+                    DestroyImmediate(tile.gameObject);
             }
         }
 
+        int autoCreationId = 0;
         Vector3 originPos = new Vector3(-_height / 2, 0, -_width/2);
         _grid = new Tile[_height, _width];
 
@@ -55,7 +67,33 @@ public class GridManager : MonoBehaviour
                 GameObject tile = Instantiate(_gridTilePrefab, originPos + new Vector3(i * _gridSpaceSize, 0, j * _gridSpaceSize), Quaternion.identity, _gridTilePrefabParent.transform);
                 Tile tileScript = tile.GetComponent<Tile>();
                 tileScript._location = new Vector2Int(i, j);
+                tileScript._autoCreationId = autoCreationId++;
                 _grid[i, j] = tileScript;
+            }
+        }
+    }
+
+    public void LoadGridInScene()
+    {
+        GameObject[] tilesGO = GameObject.FindGameObjectsWithTag("Tile");
+        List<GameObject> newTileListGO = new List<GameObject>(tilesGO);
+        List<Tile> tiles = new List<Tile>();
+
+        for(int i = 0; i < newTileListGO.Count; i++)
+        {
+            tiles.Add(newTileListGO[i].GetComponent<Tile>());
+        }
+
+        List<Tile> orderedTile = tiles.OrderBy(tile => tile._autoCreationId).ToList();
+
+        _grid = new Tile[_height, _width];
+        int cursor = 0;
+
+        for(int i = 0; i< _height; i++)
+        {
+            for(int j =0; j<_width; j++)
+            {
+                _grid[i, j] = orderedTile[cursor++];
             }
         }
 
@@ -63,11 +101,19 @@ public class GridManager : MonoBehaviour
 
     public Tile GetTile(int x, int y)
     {
-        return _grid[x, y].GetComponent<Tile>();
+        return _grid[x, y];
     }
 
-    public void DisplayMovementCell(int x, int y, int speed)
+    public void ActivateMovementCell(Vector2Int source, int speed)
     {
+        _activeMovmentTile = _pathfinding.Frontier(source, speed);
+    }
 
+    public void DeactivateMovemtnCell()
+    {
+        foreach(Tile activeTile in _activeMovmentTile)
+        {
+            activeTile._movementCellSR.SetActive(false);
+        }
     }
 }

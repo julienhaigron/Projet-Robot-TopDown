@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Pathfinding
+public class Pathfinding : MonoBehaviour
 {
     public GridManager _gridManager;
     public Tile _startLocation { get; set; }
@@ -25,22 +25,28 @@ public class Pathfinding
         return path;
     }
 
-    public void Frontier(Vector2Int source, int limit)
+    public List<Tile> Frontier(Vector2Int source, int limit)
     {
-        for(int i =0; i< _gridManager._width; i++)
+        Debug.Log("in function");
+        List<Tile> frontierTile = new List<Tile>();
+
+        for (int i = 0; i < _gridManager._width; i++)
         {
-            for(int j = 0; j<_gridManager._height; j++)
+            for (int j = 0; j < _gridManager._height; j++)
             {
                 Tile tile = _gridManager.GetTile(i, j);
                 tile._g = Vector2Int.Distance(source, tile._location);
 
-                if(tile._g <= limit)
+                if (tile._g <= limit)
                 {
                     //activate movement cell
+                    tile._movementCellSR.SetActive(true);
+                    frontierTile.Add(tile);
                 }
             }
         }
 
+        return frontierTile;
     }
 
     private bool Search(Tile currentNode)
@@ -137,7 +143,7 @@ public class Pathfinding
         }
 
         //North West
-        if (location.x -1 >= 0 && location.y + 1 < _gridManager._height)
+        if (location.x - 1 >= 0 && location.y + 1 < _gridManager._height)
         {
             adjacentLocation.Add(location + new Vector2Int(-1, 1));
         }
