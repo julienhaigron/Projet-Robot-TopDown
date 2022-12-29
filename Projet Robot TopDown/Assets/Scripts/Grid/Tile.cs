@@ -18,4 +18,9 @@ public class Tile : MonoBehaviour
     public GameObject _groundSR;
     public GameObject _movementCellSR;
 
+    private void OnMouseUp()
+    {
+        
+    }
+
 }

@@ -9,7 +9,7 @@ public class PlayerController : MonoBehaviour
     public Tile _currTile;
 
     //ref
-    private GridManager _gridManager;
+    public GridManager _gridManager;
 
     //selection
     public enum RobotSelectionState
@@ -21,7 +21,7 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        _gridManager = GridManager.Instance;
+        //_gridManager = GridManager.Instance;
         _currentSelectionState = RobotSelectionState.Unselected;
 
         //debug
@@ -37,7 +37,7 @@ public class PlayerController : MonoBehaviour
             case RobotSelectionState.Unselected:
                 Debug.Log("activate movment sprite");
                 _gridManager.ActivateMovementCell(_currTile._location, _gridMovementSpeed);
-                _currentSelectionState = RobotSelectionState.Unselected;
+                _currentSelectionState = RobotSelectionState.Selected;
                 break;
             case RobotSelectionState.Selected:
                 Debug.Log("deactivate movment sprite");

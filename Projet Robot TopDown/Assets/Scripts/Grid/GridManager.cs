@@ -13,7 +13,6 @@ public class GridManager : MonoBehaviour
     public GameObject _gridTilePrefab;
     public GameObject _gridTilePrefabParent;
     private Tile[,] _grid;
-    public Pathfinding _pathfinding;
 
     //robot movment
     private List<Tile> _activeMovmentTile;
@@ -33,11 +32,6 @@ public class GridManager : MonoBehaviour
     }
     #endregion
 
-    private void Start()
-    {
-        _activeMovmentTile = new List<Tile>();
-    }
-
     [ContextMenu("CreateGrid")]
     public void CreateGrid()
     {
@@ -47,17 +41,17 @@ public class GridManager : MonoBehaviour
             return;
         }
 
-        if(_grid != null)
+        if (_grid != null)
         {
-            foreach(Tile tile in _grid)
+            foreach (Tile tile in _grid)
             {
-                if(tile != null)
+                if (tile != null)
                     DestroyImmediate(tile.gameObject);
             }
         }
 
         int autoCreationId = 0;
-        Vector3 originPos = new Vector3(-_height / 2, 0, -_width/2);
+        Vector3 originPos = new Vector3(-_height / 2, 0, -_width / 2);
         _grid = new Tile[_height, _width];
 
         for (int i = 0; i < _height; i++)
@@ -79,7 +73,7 @@ public class GridManager : MonoBehaviour
         List<GameObject> newTileListGO = new List<GameObject>(tilesGO);
         List<Tile> tiles = new List<Tile>();
 
-        for(int i = 0; i < newTileListGO.Count; i++)
+        for (int i = 0; i < newTileListGO.Count; i++)
         {
             tiles.Add(newTileListGO[i].GetComponent<Tile>());
         }
@@ -89,9 +83,9 @@ public class GridManager : MonoBehaviour
         _grid = new Tile[_height, _width];
         int cursor = 0;
 
-        for(int i = 0; i< _height; i++)
+        for (int i = 0; i < _height; i++)
         {
-            for(int j =0; j<_width; j++)
+            for (int j = 0; j < _width; j++)
             {
                 _grid[i, j] = orderedTile[cursor++];
             }
@@ -106,12 +100,14 @@ public class GridManager : MonoBehaviour
 
     public void ActivateMovementCell(Vector2Int source, int speed)
     {
-        _activeMovmentTile = _pathfinding.Frontier(source, speed);
+        _activeMovmentTile = new List<Tile>();
+
+        _activeMovmentTile = GameManager.Instance._pathfinding.Frontier(source, speed);
     }
 
     public void DeactivateMovemtnCell()
     {
-        foreach(Tile activeTile in _activeMovmentTile)
+        foreach (Tile activeTile in _activeMovmentTile)
         {
             activeTile._movementCellSR.SetActive(false);
         }

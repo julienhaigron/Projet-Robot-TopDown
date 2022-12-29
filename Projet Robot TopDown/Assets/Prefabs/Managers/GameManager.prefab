@@ -9,10 +9,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5242533963589963538}
+  - component: {fileID: 2539090060316373303}
   - component: {fileID: -2597926068332912236}
-  - component: {fileID: 1833356063373762544}
+  - component: {fileID: 7068228304405835715}
   m_Layer: 0
-  m_Name: GridManager
+  m_Name: GameManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -34,6 +35,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2539090060316373303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2958299029108135951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8335addb87a3384999d3e276d095814, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _gridManager: {fileID: -2597926068332912236}
+  _pathfinding: {fileID: 7068228304405835715}
 --- !u!114 &-2597926068332912236
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -52,8 +67,8 @@ MonoBehaviour:
   _gridTilePrefab: {fileID: 703476587950422197, guid: 869834114ec8ed342870c274121a4a5a,
     type: 3}
   _gridTilePrefabParent: {fileID: 4818164549332294767}
-  _pathfinding: {fileID: 1833356063373762544}
---- !u!114 &1833356063373762544
+  _pathfinding: {fileID: 7068228304405835715}
+--- !u!114 &7068228304405835715
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
