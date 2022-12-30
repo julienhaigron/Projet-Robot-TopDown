@@ -9,6 +9,9 @@ public class Pathfinding : MonoBehaviour
 
     public List<Tile> FindPath(Tile startTile, Tile endTile)
     {
+        _startLocation = startTile;
+        _endLocation = endTile;
+
         List<Tile> path = new List<Tile>();
         bool success = Search(startTile);
         if (success)
@@ -21,6 +24,10 @@ public class Pathfinding : MonoBehaviour
             }
             path.Reverse();
         }
+        else
+        {
+            Debug.Log("Error : Cant find a path to destination");
+        }
         return path;
     }
 
@@ -28,11 +35,11 @@ public class Pathfinding : MonoBehaviour
     {
         List<Tile> frontierTile = new List<Tile>();
 
-        for (int i = 0; i < GameManager.Instance._gridManager._width; i++)
+        for (int i = 0; i < GameManager.Instance.GridManager._width; i++)
         {
-            for (int j = 0; j < GameManager.Instance._gridManager._height; j++)
+            for (int j = 0; j < GameManager.Instance.GridManager._height; j++)
             {
-                Tile tile = GameManager.Instance._gridManager.GetTile(i, j);
+                Tile tile = GameManager.Instance.GridManager.GetTile(i, j);
                 tile._g = Vector2Int.Distance(source, tile._location);
 
                 if (tile._g <= limit)
@@ -78,10 +85,10 @@ public class Pathfinding : MonoBehaviour
             int y = location.y;
 
             // Stay within the grid's boundaries
-            if (x < 0 || x >= GameManager.Instance._gridManager._width || y < 0 || y >= GameManager.Instance._gridManager._height)
+            if (x < 0 || x >= GameManager.Instance.GridManager._width || y < 0 || y >= GameManager.Instance.GridManager._height)
                 continue;
 
-            Tile node = GameManager.Instance._gridManager.GetTile(x, y);
+            Tile node = GameManager.Instance.GridManager.GetTile(x, y);
             // Ignore non-walkable nodes
             if (!node._isWalkable)
                 continue;
@@ -129,25 +136,25 @@ public class Pathfinding : MonoBehaviour
         }
 
         //East
-        if (location.x + 1 < GameManager.Instance._gridManager._width)
+        if (location.x + 1 < GameManager.Instance.GridManager._width)
         {
             adjacentLocation.Add(location + new Vector2Int(1, 0));
         }
 
         //North
-        if (location.y + 1 < GameManager.Instance._gridManager._height)
+        if (location.y + 1 < GameManager.Instance.GridManager._height)
         {
             adjacentLocation.Add(location + new Vector2Int(0, 1));
         }
 
         //North West
-        if (location.x - 1 >= 0 && location.y + 1 < GameManager.Instance._gridManager._height)
+        if (location.x - 1 >= 0 && location.y + 1 < GameManager.Instance.GridManager._height)
         {
             adjacentLocation.Add(location + new Vector2Int(-1, 1));
         }
 
         //North East
-        if (location.x + 1 < GameManager.Instance._gridManager._width && location.y + 1 < GameManager.Instance._gridManager._height)
+        if (location.x + 1 < GameManager.Instance.GridManager._width && location.y + 1 < GameManager.Instance.GridManager._height)
         {
             adjacentLocation.Add(location + new Vector2Int(1, 1));
         }
@@ -159,7 +166,7 @@ public class Pathfinding : MonoBehaviour
         }
 
         //South East
-        if (location.x + 1 < GameManager.Instance._gridManager._width && location.y - 1 >= 0)
+        if (location.x + 1 < GameManager.Instance.GridManager._width && location.y - 1 >= 0)
         {
             adjacentLocation.Add(location + new Vector2Int(1, -1));
         }

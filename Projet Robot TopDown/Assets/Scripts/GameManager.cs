@@ -6,8 +6,16 @@ public class GameManager : MonoBehaviour
 {
 
     [Header("References")]
-    public GridManager _gridManager;
-    public Pathfinding _pathfinding;
+    [SerializeField]
+    private GridManager _gridManager;
+    public GridManager GridManager { get => _gridManager; }
+    [SerializeField]
+    private Pathfinding _pathfinding;
+    public Pathfinding Pathfinding { get => _pathfinding; }
+
+    [SerializeField]
+    private TurnManager _turnManager;
+    public TurnManager TurnManager { get => _turnManager; }
 
     #region Singleton
     public static GameManager Instance;

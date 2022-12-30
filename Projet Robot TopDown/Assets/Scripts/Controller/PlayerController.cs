@@ -6,10 +6,11 @@ public class PlayerController : MonoBehaviour
 {
     //movement
     public int _gridMovementSpeed = 3;
-    public Tile _currTile;
+    private Tile _currentTile;
+    public Tile CurrentTile { get => _currentTile; }
 
     //ref
-    public GridManager _gridManager;
+    public GameManager _gameManager;
 
     //selection
     public enum RobotSelectionState
@@ -25,8 +26,8 @@ public class PlayerController : MonoBehaviour
         _currentSelectionState = RobotSelectionState.Unselected;
 
         //debug
-        _gridManager.LoadGridInScene();
-        _currTile = _gridManager.GetTile(8, 8);
+        _gameManager.GridManager.LoadGridInScene();
+        _currentTile = _gameManager.GridManager.GetTile(8, 8);
     }
 
     private void OnMouseUp()
@@ -36,12 +37,13 @@ public class PlayerController : MonoBehaviour
         {
             case RobotSelectionState.Unselected:
                 Debug.Log("activate movment sprite");
-                _gridManager.ActivateMovementCell(_currTile._location, _gridMovementSpeed);
+                _gameManager.GridManager.ActivateMovementCell(_currentTile._location, _gridMovementSpeed);
+                _gameManager.TurnManager.CurrentSelectedPlayer = this;
                 _currentSelectionState = RobotSelectionState.Selected;
                 break;
             case RobotSelectionState.Selected:
                 Debug.Log("deactivate movment sprite");
-                _gridManager.DeactivateMovemtnCell();
+                _gameManager.GridManager.DeactivateMovemtnCellSprite();
                 _currentSelectionState = RobotSelectionState.Unselected;
                 break;
         }

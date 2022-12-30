@@ -102,14 +102,15 @@ public class GridManager : MonoBehaviour
     {
         _activeMovmentTile = new List<Tile>();
 
-        _activeMovmentTile = GameManager.Instance._pathfinding.Frontier(source, speed);
+        _activeMovmentTile = GameManager.Instance.Pathfinding.Frontier(source, speed);
     }
 
-    public void DeactivateMovemtnCell()
+    public void DeactivateMovemtnCellSprite()
     {
         foreach (Tile activeTile in _activeMovmentTile)
         {
             activeTile._movementCellSR.SetActive(false);
+            activeTile._pathCellSR.SetActive(false);
         }
     }
 }

@@ -17,10 +17,27 @@ public class Tile : MonoBehaviour
 
     public GameObject _groundSR;
     public GameObject _movementCellSR;
+    public GameObject _pathCellSR;
 
     private void OnMouseUp()
     {
-        
+        if(_movementCellSR.activeSelf && GameManager.Instance.TurnManager.CurrentTurnState == TurnManager.TurnState.RecordingPlayerActions)
+        {
+            Debug.Log("record movment action");
+
+            List<Tile> pathToThisTile = GameManager.Instance.Pathfinding.FindPath(GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentTile, this);
+
+            foreach (Tile tile in pathToThisTile)
+            {
+                Debug.Log(tile._location);
+                tile._movementCellSR.SetActive(false);
+                tile._pathCellSR.SetActive(true);
+            }
+
+            MoveAction moveAction = new MoveAction(pathToThisTile);
+
+            GameManager.Instance.TurnManager.AddAIActionToQueue(moveAction);
+        }
     }
 
 }
