@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5242533963589963538}
   - component: {fileID: 2539090060316373303}
   - component: {fileID: -2597926068332912236}
-  - component: {fileID: 7068228304405835715}
+  - component: {fileID: 6954902052370451571}
   - component: {fileID: 2430328572931153960}
   m_Layer: 0
   m_Name: GameManager
@@ -49,7 +49,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _gridManager: {fileID: -2597926068332912236}
-  _pathfinding: {fileID: 7068228304405835715}
+  _pathfinding: {fileID: 6954902052370451571}
   _turnManager: {fileID: 2430328572931153960}
 --- !u!114 &-2597926068332912236
 MonoBehaviour:
@@ -69,7 +69,7 @@ MonoBehaviour:
   _gridTilePrefab: {fileID: 703476587950422197, guid: 869834114ec8ed342870c274121a4a5a,
     type: 3}
   _gridTilePrefabParent: {fileID: 4818164549332294767}
---- !u!114 &7068228304405835715
+--- !u!114 &6954902052370451571
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -78,7 +78,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2958299029108135951}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4aee9fc668b399c4d82c22b3e350805d, type: 3}
+  m_Script: {fileID: 11500000, guid: 6bb662e8f4277694d83725fdab48c5b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &2430328572931153960

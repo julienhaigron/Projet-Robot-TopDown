@@ -4,32 +4,9 @@ using UnityEngine;
 
 public class Pathfinding : MonoBehaviour
 {
-    public Tile _startLocation { get; set; }
-    public Tile _endLocation { get; set; }
 
-    public List<Tile> FindPath(Tile startTile, Tile endTile)
-    {
-        _startLocation = startTile;
-        _endLocation = endTile;
-
-        List<Tile> path = new List<Tile>();
-        bool success = Search(startTile);
-        if (success)
-        {
-            Tile node = endTile;
-            while (node._parentNode != null)
-            {
-                path.Add(node);
-                node = node._parentNode;
-            }
-            path.Reverse();
-        }
-        else
-        {
-            Debug.Log("Error : Cant find a path to destination");
-        }
-        return path;
-    }
+    public PriorityQueue closedList;
+    public PriorityQueue openList;
 
     public List<Tile> Frontier(Vector2Int source, int limit)
     {
@@ -40,9 +17,8 @@ public class Pathfinding : MonoBehaviour
             for (int j = 0; j < GameManager.Instance.GridManager._height; j++)
             {
                 Tile tile = GameManager.Instance.GridManager.GetTile(i, j);
-                tile._g = Vector2Int.Distance(source, tile._location);
 
-                if (tile._g <= limit)
+                if (Vector2Int.Distance(source, tile._location) <= limit)
                 {
                     //activate movement cell
                     tile._movementCellSR.SetActive(true);
@@ -54,123 +30,97 @@ public class Pathfinding : MonoBehaviour
         return frontierTile;
     }
 
-    private bool Search(Tile currentNode)
+    private static List<Tile> CalculatePath(Tile node)
     {
-        currentNode._state = Tile.NodeState.Closed;
-        List<Tile> nextNodes = GetAdjacentWalkableNodes(currentNode);
-        nextNodes.Sort((node1, node2) => node1._f.CompareTo(node2._f));
-        foreach (var nextNode in nextNodes)
+        List<Tile> list = new List<Tile>();
+        while (node != null)
         {
-            if (nextNode._location == _endLocation._location)
-            {
-                return true;
-            }
-            else
-            {
-                if (Search(nextNode)) // Note: Recurses back into Search(Node)
-                    return true;
-            }
+            list.Add(node);
+            node = node._parentNode;
         }
-        return false;
+        list.Reverse();
+        return list;
     }
 
-    private List<Tile> GetAdjacentWalkableNodes(Tile fromNode)
+
+    /// Calculate the estimated Heuristic cost to the goal 
+    private static float EstimateHeuristicCost(Tile curNode, Tile goalNode)
     {
-        List<Tile> walkableNodes = new List<Tile>();
-        IEnumerable<Vector2Int> nextLocations = GetAdjacentLocations(fromNode._location);
+        Vector2Int vecCost = curNode._location - goalNode._location;
+        return vecCost.magnitude;
+    }
 
-        foreach (var location in nextLocations)
+    public List<Tile> FindPath(Tile start, Tile goal)
+    {
+        openList = new PriorityQueue();
+        openList.Push(start);
+        start._g = 0.0f;
+        start._h = EstimateHeuristicCost(start, goal);
+
+        closedList = new PriorityQueue();
+        Tile node = null;
+        if (GameManager.Instance.GridManager == null)
         {
-            int x = location.x;
-            int y = location.y;
+            return null;
+        }
 
-            // Stay within the grid's boundaries
-            if (x < 0 || x >= GameManager.Instance.GridManager._width || y < 0 || y >= GameManager.Instance.GridManager._height)
-                continue;
+        while (openList.Length != 0)
+        {
+            node = openList.GetFirstNode();
 
-            Tile node = GameManager.Instance.GridManager.GetTile(x, y);
-            // Ignore non-walkable nodes
-            if (!node._isWalkable)
-                continue;
-
-            // Ignore already-closed nodes
-            if (node._state == Tile.NodeState.Closed)
-                continue;
-
-            // Already-open nodes are only added to the list if their G-value is lower going via this route.
-            if (node._state == Tile.NodeState.Open)
+            if (node._location == goal._location)
             {
-                float traversalCost = GetTraversalCost(node._location, node._parentNode._location);
-                float gTemp = fromNode._g + traversalCost;
-                if (gTemp < node._g)
+                return CalculatePath(node);
+            }
+
+            List<Tile> neighbors = new List<Tile>();
+            neighbors = GameManager.Instance.GridManager.GetNeighbors(node);
+
+            if(neighbors.Count == 0)
+            {
+                Debug.Log("error here");
+            }
+
+            //Update the costs of each neighbor node.
+            for (int i = 0; i < neighbors.Count; i++)
+            {
+                Tile neighborNode = neighbors[i];
+
+                if (!closedList.Contains(neighborNode))
                 {
-                    node._parentNode = fromNode;
-                    walkableNodes.Add(node);
+                    //Cost from current node to this neighbor node
+                    float cost = EstimateHeuristicCost(node, neighborNode);
+
+                    //Total Cost So Far from start to this neighbor node
+                    float totalCost = node._g + cost;
+
+                    //Estimated cost for neighbor node to the goal
+                    float neighborNodeEstCost = EstimateHeuristicCost(neighborNode, goal);
+
+                    //Assign neighbor node properties
+                    neighborNode._g = totalCost;
+                    neighborNode._parentNode = node;
+                    neighborNode._h = totalCost + neighborNodeEstCost;
+
+                    //Add the neighbor node to the open list if we haven't already done so.
+                    if (!openList.Contains(neighborNode))
+                    {
+                        openList.Push(neighborNode);
+                    }
                 }
             }
-            else
-            {
-                // If it's untested, set the parent and flag it as 'Open' for consideration
-                node._parentNode = fromNode;
-                node._state = Tile.NodeState.Open;
-                walkableNodes.Add(node);
-            }
+            closedList.Push(node);
+            openList.Remove(node);
         }
 
-        return walkableNodes;
-    }
-
-    public float GetTraversalCost(Vector2Int from, Vector2Int to)
-    {
-        return Vector2Int.Distance(from, to);
-    }
-
-    public List<Vector2Int> GetAdjacentLocations(Vector2Int location)
-    {
-        List<Vector2Int> adjacentLocation = new List<Vector2Int>();
-
-        //West
-        if (location.x - 1 >= 0)
+        //We handle the scenario where no goal was found after looping thorugh the open list
+        if (node._location != goal._location)
         {
-            adjacentLocation.Add(location + new Vector2Int(-1, 0));
+            Debug.Log("Goal Not Found; nb parcourded found : " + closedList.Length);
+            return null;
         }
 
-        //East
-        if (location.x + 1 < GameManager.Instance.GridManager._width)
-        {
-            adjacentLocation.Add(location + new Vector2Int(1, 0));
-        }
-
-        //North
-        if (location.y + 1 < GameManager.Instance.GridManager._height)
-        {
-            adjacentLocation.Add(location + new Vector2Int(0, 1));
-        }
-
-        //North West
-        if (location.x - 1 >= 0 && location.y + 1 < GameManager.Instance.GridManager._height)
-        {
-            adjacentLocation.Add(location + new Vector2Int(-1, 1));
-        }
-
-        //North East
-        if (location.x + 1 < GameManager.Instance.GridManager._width && location.y + 1 < GameManager.Instance.GridManager._height)
-        {
-            adjacentLocation.Add(location + new Vector2Int(1, 1));
-        }
-
-        //South West
-        if (location.x - 1 >= 0 && location.y - 1 >= 0)
-        {
-            adjacentLocation.Add(location + new Vector2Int(-1, -1));
-        }
-
-        //South East
-        if (location.x + 1 < GameManager.Instance.GridManager._width && location.y - 1 >= 0)
-        {
-            adjacentLocation.Add(location + new Vector2Int(1, -1));
-        }
-
-        return adjacentLocation;
+        //Calculate the path based on the final node
+        return CalculatePath(node);
     }
 }
