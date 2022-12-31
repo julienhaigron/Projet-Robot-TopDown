@@ -152,7 +152,7 @@ public class GridManager : MonoBehaviour
         if (leftNeibhbor != null)
             neighbors.Add(leftNeibhbor);
 
-        //Up Left
+        /*//Up Left
         leftNodeRow = row + 1;
         leftNodeColumn = column - 1;
         leftNeibhbor = AssignNeighbor(leftNodeRow, leftNodeColumn);
@@ -178,7 +178,7 @@ public class GridManager : MonoBehaviour
         leftNodeColumn = column + 1;
         leftNeibhbor = AssignNeighbor(leftNodeRow, leftNodeColumn);
         if (leftNeibhbor != null)
-            neighbors.Add(leftNeibhbor);
+            neighbors.Add(leftNeibhbor);*/
 
         return neighbors;
     }
