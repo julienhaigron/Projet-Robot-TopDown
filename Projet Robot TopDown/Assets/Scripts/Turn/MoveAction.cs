@@ -5,13 +5,21 @@ using UnityEngine;
 public class MoveAction : AIAction
 {
     public List<Tile> _movementPath;
-    public MoveAction(List<Tile> movemntPath)
+    public PlayerController _robot;
+    
+    public MoveAction(List<Tile> movemntPath, PlayerController robot)
     {
         _movementPath = movemntPath;
+        _robot = robot;
     }
 
     public override void Perform()
     {
-        throw new System.NotImplementedException();
+        SendPathToRobot();
+    }
+
+    public void SendPathToRobot()
+    {
+        _robot.SetPath(_movementPath);
     }
 }

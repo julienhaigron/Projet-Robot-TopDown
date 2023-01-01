@@ -8,6 +8,8 @@ public class TurnManager : MonoBehaviour
     private PlayerController _currentSelectedPlayer;
     public PlayerController CurrentSelectedPlayer { get => _currentSelectedPlayer; set => _currentSelectedPlayer = value; }
 
+    public List<Tile> _currentPath;
+
     private TurnState _currentTurnState;
     public TurnState CurrentTurnState { get => _currentTurnState; set => _currentTurnState = value; }
     public enum TurnState
@@ -31,6 +33,8 @@ public class TurnManager : MonoBehaviour
     {
         if (_currentTurnState != TurnState.PerformingPlayerActions)
         {
+            GameManager.Instance.GridManager.DeactivateMovemtnCellSprite();
+
             _currentTurnState = TurnState.PerformingPlayerActions;
             AIAction firstAction = _AIActions.Dequeue();
 
@@ -53,7 +57,26 @@ public class TurnManager : MonoBehaviour
         {
             //no more actions
             _currentTurnState = TurnState.RecordingPlayerActions;
+            Debug.Log("player turn fully performed");
         }
     }
+
+    #region Actions
+
+    public void AddMovementAction(Tile destination)
+    {
+        //add action to queue
+        MoveAction moveAction = new MoveAction(GameManager.Instance.TurnManager._currentPath, CurrentSelectedPlayer);
+        AddAIActionToQueue(moveAction);
+
+        //pay action cost
+        Debug.Log("movment cost : " + destination._f/2);
+        CurrentSelectedPlayer._currentActionPoints -= (int)destination._f/2;
+
+        if (CurrentSelectedPlayer._currentActionPoints <= 0)
+            StartPerformAIActions();
+    }
+
+    #endregion
 
 }

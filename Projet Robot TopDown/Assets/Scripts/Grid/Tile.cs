@@ -39,10 +39,16 @@ public class Tile : MonoBehaviour
 
     private void OnMouseUp()
     {
-        if(_movementCellSR.activeSelf && GameManager.Instance.TurnManager.CurrentTurnState == TurnManager.TurnState.RecordingPlayerActions)
+        if (_movementCellSR.activeSelf && GameManager.Instance.TurnManager.CurrentTurnState == TurnManager.TurnState.RecordingPlayerActions)
         {
-            Debug.Log("record movment action");
+            GameManager.Instance.TurnManager.AddMovementAction(this);
+        }
+    }
 
+    private void OnMouseEnter()
+    {
+        if (_movementCellSR.activeSelf && GameManager.Instance.TurnManager.CurrentTurnState == TurnManager.TurnState.RecordingPlayerActions)
+        {
             List<Tile> pathToThisTile = new List<Tile>();
 
             pathToThisTile = GameManager.Instance.Pathfinding.FindPath(GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentTile, this);
@@ -52,14 +58,19 @@ public class Tile : MonoBehaviour
 
             foreach (Tile tile in pathToThisTile)
             {
-                Debug.Log(tile._location);
-                tile._movementCellSR.SetActive(false);
+                //Debug.Log(tile._location);
                 tile._pathCellSR.SetActive(true);
             }
 
-            MoveAction moveAction = new MoveAction(pathToThisTile);
+            GameManager.Instance.TurnManager._currentPath = pathToThisTile;
+        }
+    }
 
-            GameManager.Instance.TurnManager.AddAIActionToQueue(moveAction);
+    private void OnMouseExit()
+    {
+        if (_movementCellSR.activeSelf && GameManager.Instance.TurnManager.CurrentTurnState == TurnManager.TurnState.RecordingPlayerActions)
+        {
+            GameManager.Instance.GridManager.DeactivatePathCellSprite();
         }
     }
 

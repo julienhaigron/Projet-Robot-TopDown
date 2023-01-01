@@ -218,4 +218,11 @@ public class GridManager : MonoBehaviour
             activeTile._pathCellSR.SetActive(false);
         }
     }
+    public void DeactivatePathCellSprite()
+    {
+        foreach (Tile activeTile in _activeMovmentTile)
+        {
+            activeTile._pathCellSR.SetActive(false);
+        }
+    }
 }
