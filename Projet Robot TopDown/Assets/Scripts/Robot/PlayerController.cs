@@ -25,7 +25,7 @@ public class PlayerController : MonoBehaviour
         Unselected,
         Selected
     }
-    private RobotSelectionState _currentSelectionState;
+    public RobotSelectionState _currentSelectionState;
 
     void Start()
     {
@@ -39,6 +39,7 @@ public class PlayerController : MonoBehaviour
         //debug
         _gameManager.GridManager.LoadGridInScene();
         _currentTile = _gameManager.GridManager.GetTile(8, 8);
+        GameManager.Instance.GridManager.UpdateVisibleTiles();
     }
 
     private void Update()
@@ -122,10 +123,11 @@ public class PlayerController : MonoBehaviour
         else
         {
             //go to next tile
-            SetDestination(_currentPath[_posInPath++].transform.position + new Vector3(0, _bc.size.y / 2f, 0));
-
             _currentTile = _currentPath[_posInPath];
+            SetDestination(_currentPath[_posInPath++].transform.position + new Vector3(0, _bc.size.y / 2f, 0));
         }
+
+        GameManager.Instance.GridManager.UpdateVisibleTiles();
     }
 
 }

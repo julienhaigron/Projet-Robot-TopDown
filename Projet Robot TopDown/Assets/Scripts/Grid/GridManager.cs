@@ -203,6 +203,11 @@ public class GridManager : MonoBehaviour
         return _grid[x, y];
     }
 
+    public void UpdateVisibleTiles()
+    {
+        //GameManager.Instance.Pathfinding.VisibleTiles(GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentTile, GameManager.Instance.TurnManager.CurrentSelectedPlayer._robotStats._viewDistance);
+    }
+
     public void ActivateMovementCell(Vector2Int source, int speed)
     {
         _activeMovmentTile = new List<Tile>();

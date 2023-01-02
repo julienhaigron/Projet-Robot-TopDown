@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: RobotStatsTest
   m_EditorClassIdentifier: 
   _name: Test
-  _actionPointsPerTurn: 3
+  _actionPointsPerTurn: 5
+  _viewDistance: 8

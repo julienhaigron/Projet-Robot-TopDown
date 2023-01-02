@@ -58,6 +58,8 @@ public class TurnManager : MonoBehaviour
             //no more actions
             _currentTurnState = TurnState.RecordingPlayerActions;
             Debug.Log("player turn fully performed");
+            GameManager.Instance.GridManager.DeactivateMovemtnCellSprite();
+            GameManager.Instance.TurnManager.CurrentSelectedPlayer._currentSelectionState = PlayerController.RobotSelectionState.Unselected;
         }
     }
 

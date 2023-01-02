@@ -30,7 +30,69 @@ public class Pathfinding : MonoBehaviour
         return frontierTile;
     }
 
-    private static List<Tile> CalculatePath(Tile node)
+    public List<Tile> VisibleTiles(Tile source, int maxViewDistance)
+    {
+        List<Tile> visibleTiles = new List<Tile>();
+
+        visibleTiles = Frontier(source._location, maxViewDistance);
+        foreach (Tile tile in visibleTiles)
+        {
+            List<Tile> lineToThisTile = Line(source, tile);
+            bool isVisible = true;
+            foreach (Tile tileInLine in lineToThisTile)
+            {
+                if (!tileInLine._isWalkable)
+                {
+                    visibleTiles.Remove(tile);
+                    tile._groundSR.SetActive(false);
+                    isVisible = false;
+                }
+            }
+
+            tile._isVisible = isVisible;
+        }
+
+        return visibleTiles;
+    }
+
+    public List<Tile> Line(Tile from, Tile to)
+    {
+        List<Tile> line = new List<Tile>();
+        float dist = DiagonalDistance(from._location, to._location);
+        Debug.Log(dist);
+        for (int i = 0; i < dist; i++)
+        {
+            float t = dist == 0 ? 0.0f : i / dist;
+            line.Add(RoundTile(LerpTile(from._location, to._location, t)));
+        }
+
+        return line;
+    }
+
+    public float DiagonalDistance(Vector2 p0, Vector2 p1)
+    {
+        float dx = p1.x - p0.x;
+        float dy = p1.y - p0.y;
+        return Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy));
+    }
+
+    public Tile RoundTile(Vector2 loc)
+    {
+        return GameManager.Instance.GridManager.GetTile(Mathf.RoundToInt(loc.x), Mathf.RoundToInt(loc.y));
+    }
+
+    public Vector2 LerpTile(Vector2 l1, Vector2 l2, float pos)
+    {
+        //return new Vector2(Lerp(l1.x, l2.x, pos), Lerp(l1.y, l2.y, pos));
+        return Vector2.Lerp(l1, l2, pos);
+    }
+
+    public float Lerp(float start, float end, int t)
+    {
+        return start * (1f - t) + t * end;
+    }
+
+    private List<Tile> CalculatePath(Tile node)
     {
         List<Tile> list = new List<Tile>();
         while (node != null)
@@ -44,7 +106,7 @@ public class Pathfinding : MonoBehaviour
 
 
     /// Calculate the estimated Heuristic cost to the goal 
-    private static float EstimateHeuristicCost(Tile curNode, Tile goalNode)
+    private float EstimateHeuristicCost(Tile curNode, Tile goalNode)
     {
         Vector2Int vecCost = curNode._location - goalNode._location;
         return vecCost.magnitude;
@@ -76,7 +138,7 @@ public class Pathfinding : MonoBehaviour
             List<Tile> neighbors = new List<Tile>();
             neighbors = GameManager.Instance.GridManager.GetNeighbors(node);
 
-            if(neighbors.Count == 0)
+            if (neighbors.Count == 0)
             {
                 Debug.Log("error here");
             }

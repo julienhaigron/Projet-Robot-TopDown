@@ -7,6 +7,7 @@ public class Tile : MonoBehaviour
     public int _autoCreationId;
     public Vector2Int _location;
     public bool _isWalkable = true;
+    public bool _isVisible = false;
 
     public float _g = 1;
     public float _h = 0;
