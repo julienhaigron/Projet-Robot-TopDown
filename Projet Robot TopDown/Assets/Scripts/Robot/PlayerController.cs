@@ -1,31 +1,37 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class PlayerController : MonoBehaviour
 {
     public RobotStats _robotStats;
     //movement
-    public int _currentActionPoints;
+    private int _currentActionPoints;
+    public int CurrentActionPoints { get => _currentActionPoints; set => _currentActionPoints = value; }
     private Tile _currentTile;
     public Tile CurrentTile { get => _currentTile; }
     private List<Tile> _currentPath;
-    public int _posInPath;
-    public Vector3 _destination;
-    public bool _isMoving;
+    private int _posInPath;
+    private Vector3 _destination;
+    private bool _isMoving;
 
     //ref
     public GameManager _gameManager;
     public Rigidbody _rb;
     public BoxCollider _bc;
+    public GameObject _ui;
+    public TextMeshProUGUI _actionPointText;
 
     //selection
     public enum RobotSelectionState
     {
         Unselected,
-        Selected
+        Selected,
+        GhostActivated
     }
-    public RobotSelectionState _currentSelectionState;
+    private RobotSelectionState _currentSelectionState;
+    public RobotSelectionState CurrentSelectionState { get => _currentSelectionState; set => _currentSelectionState = value; }
 
     void Start()
     {
@@ -50,28 +56,10 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnMouseUp()
-    {
-        //pop frontier
-        switch (_currentSelectionState)
-        {
-            case RobotSelectionState.Unselected:
-                Debug.Log("activate movment sprite");
-                _gameManager.GridManager.ActivateMovementCell(_currentTile._location, _robotStats._actionPointsPerTurn);
-                _gameManager.TurnManager.CurrentSelectedPlayer = this;
-                _currentSelectionState = RobotSelectionState.Selected;
-                break;
-            case RobotSelectionState.Selected:
-                Debug.Log("deactivate movment sprite");
-                _gameManager.GridManager.DeactivateMovemtnCellSprite();
-                _currentSelectionState = RobotSelectionState.Unselected;
-                break;
-        }
-    }
-
     public void NewTurn()
     {
         _currentActionPoints = _robotStats._actionPointsPerTurn;
+        _actionPointText.SetText(_currentActionPoints.ToString());
     }
 
     public void SetPath(List<Tile> path)
@@ -79,7 +67,28 @@ public class PlayerController : MonoBehaviour
         Debug.Log("set path");
         _currentPath = path;
         _posInPath = 0;
-        SetDestination(path[_posInPath++].transform.position + new Vector3(0, _bc.size.y/2f, 0));
+        SetDestination(path[_posInPath++].transform.position + new Vector3(0, _bc.size.y / 2f, 0));
+    }
+
+    #region Movement
+
+    private void OnMouseUp()
+    {
+        //pop frontier
+        switch (_currentSelectionState)
+        {
+            case RobotSelectionState.Unselected:
+                Debug.Log("activate movment sprite");
+                _gameManager.GridManager.ActivateMovementCell(_currentTile._location, _currentActionPoints);
+                _gameManager.TurnManager.CurrentSelectedPlayer = this;
+                _currentSelectionState = RobotSelectionState.Selected;
+                break;
+            case RobotSelectionState.Selected:
+                Debug.Log("deactivate movment sprite");
+                _gameManager.GridManager.DeactivateMovementCellSprite();
+                _currentSelectionState = RobotSelectionState.Unselected;
+                break;
+        }
     }
 
     public void SetDestination(Vector3 destination)
@@ -113,7 +122,7 @@ public class PlayerController : MonoBehaviour
         {
             //reached the end
             GameManager.Instance.TurnManager.PerformNextAIAction();
-            
+
             transform.localPosition = _destination;
 
             //reset physics
@@ -129,5 +138,7 @@ public class PlayerController : MonoBehaviour
 
         GameManager.Instance.GridManager.UpdateVisibleTiles();
     }
+
+    #endregion
 
 }

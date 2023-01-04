@@ -52,7 +52,10 @@ public class Tile : MonoBehaviour
         {
             List<Tile> pathToThisTile = new List<Tile>();
 
-            pathToThisTile = GameManager.Instance.Pathfinding.FindPath(GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentTile, this);
+            if (GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentSelectionState == PlayerController.RobotSelectionState.GhostActivated)
+                pathToThisTile = GameManager.Instance.Pathfinding.FindPath(GameManager.Instance.TurnManager.CurrentGhost.CurrentTile, this);
+            else
+                pathToThisTile = GameManager.Instance.Pathfinding.FindPath(GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentTile, this);
 
             if (pathToThisTile == null || pathToThisTile.Count == 0)
                 return;
@@ -63,7 +66,7 @@ public class Tile : MonoBehaviour
                 tile._pathCellSR.SetActive(true);
             }
 
-            GameManager.Instance.TurnManager._currentPath = pathToThisTile;
+            GameManager.Instance.TurnManager.CurrentPath = pathToThisTile;
         }
     }
 

@@ -4,11 +4,15 @@ using UnityEngine;
 
 public class TurnManager : MonoBehaviour
 {
+    public GameObject _ghostPrefab;
+    private GhostController _currentGhost;
+    public GhostController CurrentGhost { get => _currentGhost; set => _currentGhost = value; }
     private Queue<AIAction> _AIActions = new Queue<AIAction>();
     private PlayerController _currentSelectedPlayer;
     public PlayerController CurrentSelectedPlayer { get => _currentSelectedPlayer; set => _currentSelectedPlayer = value; }
 
-    public List<Tile> _currentPath;
+    private List<Tile> _currentPath;
+    public List<Tile> CurrentPath { get => _currentPath; set => _currentPath = value; }
 
     private TurnState _currentTurnState;
     public TurnState CurrentTurnState { get => _currentTurnState; set => _currentTurnState = value; }
@@ -27,13 +31,23 @@ public class TurnManager : MonoBehaviour
     public void AddAIActionToQueue(AIAction action)
     {
         _AIActions.Enqueue(action);
+
+        //pay action cost
+        Debug.Log("movment cost : " + action._cost);
+        CurrentSelectedPlayer.CurrentActionPoints -= action._cost;
+        CurrentSelectedPlayer._actionPointText.SetText(CurrentSelectedPlayer.CurrentActionPoints.ToString());
+
+        //start perform player turn if all action used
+        if (CurrentSelectedPlayer.CurrentActionPoints <= 0)
+            StartPerformAIActions();
     }
 
     public void StartPerformAIActions()
     {
         if (_currentTurnState != TurnState.PerformingPlayerActions)
         {
-            GameManager.Instance.GridManager.DeactivateMovemtnCellSprite();
+            _currentSelectedPlayer.CurrentSelectionState = PlayerController.RobotSelectionState.Unselected;
+            GameManager.Instance.GridManager.DeactivateMovementCellSprite();
 
             _currentTurnState = TurnState.PerformingPlayerActions;
             AIAction firstAction = _AIActions.Dequeue();
@@ -58,8 +72,8 @@ public class TurnManager : MonoBehaviour
             //no more actions
             _currentTurnState = TurnState.RecordingPlayerActions;
             Debug.Log("player turn fully performed");
-            GameManager.Instance.GridManager.DeactivateMovemtnCellSprite();
-            GameManager.Instance.TurnManager.CurrentSelectedPlayer._currentSelectionState = PlayerController.RobotSelectionState.Unselected;
+            GameManager.Instance.GridManager.DeactivateMovementCellSprite();
+            GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentSelectionState = PlayerController.RobotSelectionState.Unselected;
         }
     }
 
@@ -67,16 +81,26 @@ public class TurnManager : MonoBehaviour
 
     public void AddMovementAction(Tile destination)
     {
+        GameManager.Instance.GridManager.DeactivateMovementCellSprite();
+
         //add action to queue
         MoveAction moveAction = new MoveAction(GameManager.Instance.TurnManager._currentPath, CurrentSelectedPlayer);
         AddAIActionToQueue(moveAction);
 
-        //pay action cost
-        Debug.Log("movment cost : " + destination._f/2);
-        CurrentSelectedPlayer._currentActionPoints -= (int)destination._f/2;
+        PopGhost(destination);
+    }
 
-        if (CurrentSelectedPlayer._currentActionPoints <= 0)
-            StartPerformAIActions();
+    public void PopGhost(Tile ghostTile)
+    {
+        _currentSelectedPlayer.CurrentSelectionState = PlayerController.RobotSelectionState.GhostActivated;
+
+        Vector3 position = ghostTile.transform.position + new Vector3(0, 1 / 2f, 0);
+        GameObject currentGhostGO = Instantiate(_ghostPrefab, position, Quaternion.identity);
+
+        GhostController ghostController = currentGhostGO.GetComponent<GhostController>();
+        ghostController._connectedPlayer = CurrentSelectedPlayer;
+        ghostController.CurrentTile = ghostTile;
+        _currentGhost = ghostController;
     }
 
     #endregion

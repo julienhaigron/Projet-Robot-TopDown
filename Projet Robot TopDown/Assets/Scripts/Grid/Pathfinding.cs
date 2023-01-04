@@ -22,6 +22,7 @@ public class Pathfinding : MonoBehaviour
                 {
                     //activate movement cell
                     tile._movementCellSR.SetActive(true);
+                    tile._parentNode = null;
                     frontierTile.Add(tile);
                 }
             }

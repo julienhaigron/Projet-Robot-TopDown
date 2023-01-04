@@ -215,7 +215,7 @@ public class GridManager : MonoBehaviour
         _activeMovmentTile = GameManager.Instance.Pathfinding.Frontier(source, speed);
     }
 
-    public void DeactivateMovemtnCellSprite()
+    public void DeactivateMovementCellSprite()
     {
         foreach (Tile activeTile in _activeMovmentTile)
         {

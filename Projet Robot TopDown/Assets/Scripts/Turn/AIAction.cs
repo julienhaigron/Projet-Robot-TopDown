@@ -4,6 +4,7 @@ using UnityEngine;
 
 public abstract class AIAction
 {
+    public int _cost;
     public abstract void Perform();
 
     public void EndPerform()
