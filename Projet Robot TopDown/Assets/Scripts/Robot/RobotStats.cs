@@ -8,4 +8,5 @@ public class RobotStats : ScriptableObject
     public string _name;
     public int _actionPointsPerTurn;
     public int _viewDistance;
+    public List<WeaponStats> _weapons;
 }

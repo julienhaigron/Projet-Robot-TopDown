@@ -9,11 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e812fe182cbd4594e8838ed1ece72067, type: 3}
-  m_Name: RobotStatsTest
+  m_Script: {fileID: 11500000, guid: 31c208bc5dcd7964f9d79af822fbbb12, type: 3}
+  m_Name: TestWeapon
   m_EditorClassIdentifier: 
   _name: Test
-  _actionPointsPerTurn: 5
-  _viewDistance: 8
-  _weapons:
-  - {fileID: 11400000, guid: 58c37c6f16dceed43b82f8f13e4e3a18, type: 2}
+  _range: 8
+  _coneAngle: 30
+  _damage: 2
+  _accuracy: 60

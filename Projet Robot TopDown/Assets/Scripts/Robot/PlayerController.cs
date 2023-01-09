@@ -6,15 +6,25 @@ using TMPro;
 public class PlayerController : MonoBehaviour
 {
     public RobotStats _robotStats;
-    //movement
+
+    //actions
     private int _currentActionPoints;
     public int CurrentActionPoints { get => _currentActionPoints; set => _currentActionPoints = value; }
     private Tile _currentTile;
     public Tile CurrentTile { get => _currentTile; }
+
+    //movement
     private List<Tile> _currentPath;
     private int _posInPath;
     private Vector3 _destination;
     private bool _isMoving;
+
+    //weapons
+    public GameObject _weaponVisionConePrefab;
+    private List<GameObject> _weaponsVisionCone;
+    private int _currentWeaponSelected;
+    public int CurrentWeaponSelected { get => _currentWeaponSelected; set => _currentWeaponSelected = value; }
+    public List<Tile> _weaponsTarget;
 
     //ref
     public GameManager _gameManager;
@@ -33,6 +43,16 @@ public class PlayerController : MonoBehaviour
     private RobotSelectionState _currentSelectionState;
     public RobotSelectionState CurrentSelectionState { get => _currentSelectionState; set => _currentSelectionState = value; }
 
+    //actions
+    public enum RobotActions
+    {
+        Move,
+        TurnWeapon,
+        ShootIfPossible
+    }
+    private RobotActions _currentRobotAction;
+    public RobotActions CurrentRobotAction { get => _currentRobotAction; set => _currentRobotAction = value; }
+
     void Start()
     {
         //_gridManager = GridManager.Instance;
@@ -46,6 +66,8 @@ public class PlayerController : MonoBehaviour
         _gameManager.GridManager.LoadGridInScene();
         _currentTile = _gameManager.GridManager.GetTile(8, 8);
         GameManager.Instance.GridManager.UpdateVisibleTiles();
+
+        InitWeapons();
     }
 
     private void Update()
@@ -60,6 +82,7 @@ public class PlayerController : MonoBehaviour
     {
         _currentActionPoints = _robotStats._actionPointsPerTurn;
         _actionPointText.SetText(_currentActionPoints.ToString());
+        _currentRobotAction = RobotActions.Move;
     }
 
     public void SetPath(List<Tile> path)
@@ -137,6 +160,50 @@ public class PlayerController : MonoBehaviour
         }
 
         GameManager.Instance.GridManager.UpdateVisibleTiles();
+    }
+
+    #endregion
+
+    #region Weapon
+
+    public void InitWeapons()
+    {
+        _weaponsVisionCone = new List<GameObject>();
+        _weaponsTarget = new List<Tile>();
+        _currentWeaponSelected = 0;
+
+        foreach (WeaponStats weaponStat in _robotStats._weapons)
+        {
+            GameObject weapon = Instantiate(_weaponVisionConePrefab, transform.position, Quaternion.identity, transform);
+            weapon.transform.localScale = new Vector3((float)(weaponStat._range + 0.5f) / 1.5f, (float)(weaponStat._range + 0.5f) / 1.5f, (float)(weaponStat._range + 0.5f) / 1.5f);
+            _weaponsVisionCone.Add(weapon);
+            _weaponsTarget.Add(GameManager.Instance.GridManager.GetTile(_currentTile._location.x + 1, _currentTile._location.y));
+        }
+    }
+
+    public void UpdateWeaponTarget(Tile target)
+    {
+        Vector3 oldRotation = transform.rotation.eulerAngles;
+        Vector3 newRotationV3 = new Vector3(oldRotation.x, GameManager.Instance.GridManager.GetTileAngle(_currentTile._location, target._location), oldRotation.z);
+        Quaternion newRotationQUAT = new Quaternion();
+        newRotationQUAT.eulerAngles = newRotationV3;
+        _weaponsVisionCone[_currentWeaponSelected].transform.rotation = newRotationQUAT;
+
+        GameManager.Instance.GridManager.ActivateWeaponConeTiles(target);
+    }
+
+    public void SetWeaponRotation(float angle, int weaponId)
+    {
+        _weaponsVisionCone[weaponId].transform.Rotate(Vector3.up, angle);
+
+        GameManager.Instance.TurnManager.PerformNextAIAction();
+    }
+
+    public void AttackIfPossible(int weaponId)
+    {
+        //perform attack
+
+        GameManager.Instance.TurnManager.PerformNextAIAction();
     }
 
     #endregion

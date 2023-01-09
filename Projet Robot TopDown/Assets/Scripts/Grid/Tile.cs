@@ -17,8 +17,9 @@ public class Tile : MonoBehaviour
     public enum NodeState { Untested, Open, Closed }
 
     public GameObject _groundSR;
-    public GameObject _movementCellSR;
-    public GameObject _pathCellSR;
+    public GameObject _movementSprite;
+    public GameObject _pathSprite;
+    public GameObject _attackSprite;
 
     public int CompareTo(Tile tile)
     {
@@ -40,7 +41,25 @@ public class Tile : MonoBehaviour
 
     private void OnMouseUp()
     {
-        if (_movementCellSR.activeSelf && GameManager.Instance.TurnManager.CurrentTurnState == TurnManager.TurnState.RecordingPlayerActions)
+        if (GameManager.Instance.TurnManager.CurrentSelectedPlayer != null && GameManager.Instance.TurnManager.CurrentTurnState == TurnManager.TurnState.RecordingPlayerActions)
+        {
+            PlayerController robot = GameManager.Instance.TurnManager.CurrentSelectedPlayer;
+
+            switch (GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentRobotAction)
+            {
+                case PlayerController.RobotActions.Move:
+                    GameManager.Instance.TurnManager.AddMovementAction(this);
+                    break;
+                case PlayerController.RobotActions.TurnWeapon:
+                    float rotation = GameManager.Instance.GridManager.GetTileAngle(robot._weaponsTarget[robot.CurrentWeaponSelected]._location, this._location);
+                    GameManager.Instance.TurnManager.AddRotateWeaponAction(rotation, robot, robot.CurrentWeaponSelected);
+                    break;
+                case PlayerController.RobotActions.ShootIfPossible:
+                    GameManager.Instance.TurnManager.AddAttackIfPossibleAction(robot, robot.CurrentWeaponSelected);
+                    break;
+            }
+        }
+        if (_movementSprite.activeSelf && GameManager.Instance.TurnManager.CurrentTurnState == TurnManager.TurnState.RecordingPlayerActions)
         {
             GameManager.Instance.TurnManager.AddMovementAction(this);
         }
@@ -48,31 +67,47 @@ public class Tile : MonoBehaviour
 
     private void OnMouseEnter()
     {
-        if (_movementCellSR.activeSelf && GameManager.Instance.TurnManager.CurrentTurnState == TurnManager.TurnState.RecordingPlayerActions)
+        
+        if (GameManager.Instance.TurnManager.CurrentSelectedPlayer != null && GameManager.Instance.TurnManager.CurrentTurnState == TurnManager.TurnState.RecordingPlayerActions)
         {
-            List<Tile> pathToThisTile = new List<Tile>();
-
-            if (GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentSelectionState == PlayerController.RobotSelectionState.GhostActivated)
-                pathToThisTile = GameManager.Instance.Pathfinding.FindPath(GameManager.Instance.TurnManager.CurrentGhost.CurrentTile, this);
-            else
-                pathToThisTile = GameManager.Instance.Pathfinding.FindPath(GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentTile, this);
-
-            if (pathToThisTile == null || pathToThisTile.Count == 0)
-                return;
-
-            foreach (Tile tile in pathToThisTile)
+            switch (GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentRobotAction)
             {
-                //Debug.Log(tile._location);
-                tile._pathCellSR.SetActive(true);
-            }
+                case PlayerController.RobotActions.Move:
+                    if (_movementSprite.activeSelf)
+                    {
+                        List<Tile> pathToThisTile = new List<Tile>();
 
-            GameManager.Instance.TurnManager.CurrentPath = pathToThisTile;
+                        if (GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentSelectionState == PlayerController.RobotSelectionState.GhostActivated)
+                            pathToThisTile = GameManager.Instance.Pathfinding.FindPath(GameManager.Instance.TurnManager.CurrentGhost.CurrentTile, this);
+                        else
+                            pathToThisTile = GameManager.Instance.Pathfinding.FindPath(GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentTile, this);
+
+                        if (pathToThisTile == null || pathToThisTile.Count == 0)
+                            return;
+
+                        foreach (Tile tile in pathToThisTile)
+                        {
+                            //Debug.Log(tile._location);
+                            tile._pathSprite.SetActive(true);
+                        }
+
+                        GameManager.Instance.TurnManager.CurrentPath = pathToThisTile;
+                    }
+                    break;
+
+                case PlayerController.RobotActions.TurnWeapon:
+                    PlayerController currentPlayer = GameManager.Instance.TurnManager.CurrentSelectedPlayer;
+                    currentPlayer.UpdateWeaponTarget(this);
+                    break;
+            }
         }
+
+
     }
 
     private void OnMouseExit()
     {
-        if (_movementCellSR.activeSelf && GameManager.Instance.TurnManager.CurrentTurnState == TurnManager.TurnState.RecordingPlayerActions)
+        if (GameManager.Instance.TurnManager.CurrentSelectedPlayer != null && _movementSprite.activeSelf && GameManager.Instance.TurnManager.CurrentTurnState == TurnManager.TurnState.RecordingPlayerActions)
         {
             GameManager.Instance.GridManager.DeactivatePathCellSprite();
         }

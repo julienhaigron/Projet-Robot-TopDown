@@ -103,6 +103,22 @@ public class TurnManager : MonoBehaviour
         _currentGhost = ghostController;
     }
 
+    public void AddAttackIfPossibleAction(PlayerController robot, int weaponId)
+    {
+        GameManager.Instance.GridManager.DeactivateAttackCellSprite();
+
+        AttackIfPossibleAction action = new AttackIfPossibleAction(robot, weaponId);
+        AddAIActionToQueue(action);
+    }
+
+    public void AddRotateWeaponAction(float rotation, PlayerController robot, int weaponId)
+    {
+        GameManager.Instance.GridManager.DeactivateAttackCellSprite();
+
+        RotateWeaponAction action = new RotateWeaponAction(rotation, robot, weaponId);
+        AddAIActionToQueue(action);
+    }
+
     #endregion
 
 }

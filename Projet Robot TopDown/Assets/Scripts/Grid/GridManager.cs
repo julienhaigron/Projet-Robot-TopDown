@@ -18,6 +18,9 @@ public class GridManager : MonoBehaviour
     //robot movment
     private List<Tile> _activeMovmentTile;
 
+    //robot attack
+    public List<Tile> _activeAttackTile;
+
     #region Singleton
     private static GridManager instance = null;
     public static GridManager Instance
@@ -219,15 +222,61 @@ public class GridManager : MonoBehaviour
     {
         foreach (Tile activeTile in _activeMovmentTile)
         {
-            activeTile._movementCellSR.SetActive(false);
-            activeTile._pathCellSR.SetActive(false);
+            activeTile._movementSprite.SetActive(false);
+            activeTile._pathSprite.SetActive(false);
         }
     }
     public void DeactivatePathCellSprite()
     {
         foreach (Tile activeTile in _activeMovmentTile)
         {
-            activeTile._pathCellSR.SetActive(false);
+            activeTile._pathSprite.SetActive(false);
+        }
+    }
+    
+    //weapon
+    public void ActivateWeaponConeTiles(Tile target)
+    {
+        PlayerController robot = GameManager.Instance.TurnManager.CurrentSelectedPlayer;
+        //get tiles in cirle around weapon._range (frontier)
+        WeaponStats weapon = robot._robotStats._weapons[robot.CurrentWeaponSelected];
+        List<Tile> frontier = GameManager.Instance.Pathfinding.VisibleTiles(robot.CurrentTile, weapon._range);
+
+        //check if tiles angle is in weaponConeAngleRange
+        //if true then turn on tile's "attack" sprite in cone
+        float targetAngle = GetTileAngle(robot.CurrentTile._location, target._location);
+        float minAngle = targetAngle - weapon._coneAngle / 2;
+        float maxAngle = targetAngle + weapon._coneAngle / 2;
+
+        foreach (Tile tile in frontier)
+        {
+            float thisTileAngle = GetTileAngle(robot.CurrentTile._location, tile._location);
+            if (thisTileAngle >= minAngle && thisTileAngle <= maxAngle)
+            {
+                tile._attackSprite.SetActive(true);
+                _activeAttackTile.Add(tile);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gives tile rotation on grid towards player
+    /// </summary>
+    /// <param name="tile"></param>
+    /// <returns></returns>
+    public float GetTileAngle(Vector2Int origin, Vector2Int destination)
+    {
+        Vector2Int P1 = new Vector2Int(1, 0); //north
+        Vector2Int P2 = origin; //origin
+        Vector2Int P3 = destination; //destination
+        return Mathf.Atan2(P3.y - P1.y, P3.x - P1.x) - Mathf.Atan2(P2.y - P1.y, P2.x - P1.x);
+    }
+
+    public void DeactivateAttackCellSprite()
+    {
+        foreach (Tile activeTile in _activeAttackTile)
+        {
+            activeTile._attackSprite.SetActive(false);
         }
     }
 }
