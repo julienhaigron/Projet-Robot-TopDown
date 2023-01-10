@@ -46,6 +46,9 @@ public class TurnManager : MonoBehaviour
     {
         if (_currentTurnState != TurnState.PerformingPlayerActions)
         {
+            //depop ghost
+            Destroy(_currentGhost.gameObject);
+
             _currentSelectedPlayer.CurrentSelectionState = PlayerController.RobotSelectionState.Unselected;
             GameManager.Instance.GridManager.DeactivateMovementCellSprite();
 
@@ -87,7 +90,13 @@ public class TurnManager : MonoBehaviour
         MoveAction moveAction = new MoveAction(GameManager.Instance.TurnManager._currentPath, CurrentSelectedPlayer);
         AddAIActionToQueue(moveAction);
 
-        PopGhost(destination);
+        if(_currentGhost == null)
+            PopGhost(destination);
+        else
+        {
+            //move ghost to destination
+            _currentGhost.transform.position = destination.transform.position + new Vector3(0, 1 / 2f, 0);
+        }
     }
 
     public void PopGhost(Tile ghostTile)
