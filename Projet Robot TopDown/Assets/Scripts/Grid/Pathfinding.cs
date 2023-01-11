@@ -61,7 +61,6 @@ public class Pathfinding : MonoBehaviour
     {
         List<Tile> line = new List<Tile>();
         float dist = DiagonalDistance(from._location, to._location);
-        Debug.Log(dist);
         for (int i = 0; i < dist; i++)
         {
             float t = dist == 0 ? 0.0f : i / dist;

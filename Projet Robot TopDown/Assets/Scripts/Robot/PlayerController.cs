@@ -101,15 +101,16 @@ public class PlayerController : MonoBehaviour
         switch (_currentSelectionState)
         {
             case RobotSelectionState.Unselected:
-                Debug.Log("activate movment sprite");
                 _gameManager.GridManager.ActivateMovementCell(_currentTile._location, _currentActionPoints);
                 _gameManager.TurnManager.CurrentSelectedPlayer = this;
                 _currentSelectionState = RobotSelectionState.Selected;
+                GameManager.Instance.HUD.DisplayActionsButtons();
                 break;
             case RobotSelectionState.Selected:
-                Debug.Log("deactivate movment sprite");
                 _gameManager.GridManager.DeactivateMovementCellSprite();
                 _currentSelectionState = RobotSelectionState.Unselected;
+                _gameManager.TurnManager.CurrentSelectedPlayer = null;
+                GameManager.Instance.HUD.HideActionsButtons();
                 break;
         }
     }

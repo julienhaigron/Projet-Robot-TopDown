@@ -17,6 +17,10 @@ public class GameManager : MonoBehaviour
     private TurnManager _turnManager;
     public TurnManager TurnManager { get => _turnManager; }
 
+    [SerializeField]
+    private HUD _hud;
+    public HUD HUD { get => _hud; }
+
     #region Singleton
     public static GameManager Instance;
 

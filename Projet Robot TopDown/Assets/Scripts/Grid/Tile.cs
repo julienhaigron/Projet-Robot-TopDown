@@ -99,6 +99,10 @@ public class Tile : MonoBehaviour
                     PlayerController currentPlayer = GameManager.Instance.TurnManager.CurrentSelectedPlayer;
                     currentPlayer.UpdateWeaponTarget(this);
                     break;
+
+                case PlayerController.RobotActions.ShootIfPossible:
+                    //do nothing
+                    break;
             }
         }
 
