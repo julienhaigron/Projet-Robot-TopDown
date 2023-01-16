@@ -27,15 +27,22 @@ public class HUD : MonoBehaviour
         GameManager.Instance.TurnManager.CurrentSelectedPlayer.DestroyWeaponCones();
         GameManager.Instance.GridManager.DeactivateAttackCellSprite();
         GameManager.Instance.GridManager.DeactivateDeadAttackCellSprite();
-        GameManager.Instance.GridManager.ActivateMovementCell(GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentTile._location, GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentActionPoints);
+
+        if (GameManager.Instance.TurnManager.CurrentGhost == null)
+            GameManager.Instance.GridManager.ActivateMovementCell(GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentTile._location, GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentActionPoints);
+        else
+            GameManager.Instance.GridManager.ActivateMovementCell(GameManager.Instance.TurnManager.CurrentGhost.CurrentTile._location, GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentActionPoints);
     }
 
     public void TurnWeaponButton()
     {
-        GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentRobotAction = PlayerController.RobotActions.TurnWeapon;
+        if (GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentRobotAction != PlayerController.RobotActions.TurnWeapon)
+        {
+            GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentRobotAction = PlayerController.RobotActions.TurnWeapon;
 
-        //instantiate old moove prefab
-        GameManager.Instance.TurnManager.CurrentSelectedPlayer.InitUnchaingedAngleWeapon();
+            //instantiate old moove prefab
+            GameManager.Instance.TurnManager.CurrentSelectedPlayer.InitUnchaingedAngleWeapon();
+        }
     }
 
     public void ShootIfPossibleButton()

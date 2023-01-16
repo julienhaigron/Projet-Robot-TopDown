@@ -11,7 +11,7 @@ public class MoveAction : AIAction
     {
         _movementPath = movemntPath;
         _robot = robot;
-        _cost = _movementPath.Count;
+        _cost = _movementPath.Count-1;
     }
 
     public override void Perform()

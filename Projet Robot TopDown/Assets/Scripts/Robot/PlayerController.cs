@@ -89,7 +89,6 @@ public class PlayerController : MonoBehaviour
 
     public void SetPath(List<Tile> path)
     {
-        Debug.Log("set path");
         _currentPath = path;
         _posInPath = 0;
         SetDestination(path[_posInPath++].transform.position + new Vector3(0, _bc.size.y / 2f, 0));
@@ -192,10 +191,14 @@ public class PlayerController : MonoBehaviour
         _weaponVisionConeGrey.transform.localScale = new Vector3((float)(_robotStats._weapons[weaponId]._range + 0.5f) / 1.5f, (float)(_robotStats._weapons[weaponId]._range + 0.5f) / 1.5f, (float)(_robotStats._weapons[weaponId]._range + 0.5f) / 1.5f);
         
         Vector3 oldRotation = transform.rotation.eulerAngles;
-        //Debug.Log("angle : " + GameManager.Instance.GridManager.GetTileAngle(_currentTile._location, target._location));
-        //Debug.Log("angle : " + GameManager.Instance.GridManager.GetTileAngle(_currentTile._location, _weaponsTarget[weaponId]._location));
 
-        Vector3 newRotationV3 = new Vector3(oldRotation.x, GameManager.Instance.GridManager.GetTileAngle(_currentTile._location, _weaponsTarget[weaponId]._location), oldRotation.z);
+        Vector2Int currentLocation;
+        if (GameManager.Instance.TurnManager.CurrentGhost == null)
+            currentLocation = _currentTile._location;
+        else
+            currentLocation = GameManager.Instance.TurnManager.CurrentGhost.CurrentTile._location;
+
+        Vector3 newRotationV3 = new Vector3(oldRotation.x, GameManager.Instance.GridManager.GetTileAngle(currentLocation, _weaponsTarget[weaponId]._location), oldRotation.z);
         Quaternion newRotationQUAT = new Quaternion();
         newRotationQUAT.eulerAngles = newRotationV3;
         _weaponVisionConeGrey.transform.rotation = newRotationQUAT;
@@ -209,8 +212,14 @@ public class PlayerController : MonoBehaviour
         Vector3 oldRotation = transform.rotation.eulerAngles;
         //Debug.Log("angle : " + GameManager.Instance.GridManager.GetTileAngle(_currentTile._location, target._location));
         //Debug.Log("angle : " + GameManager.Instance.GridManager.GetTileAngle(_currentTile._location, target._location));
-        
-        Vector3 newRotationV3 = new Vector3(oldRotation.x, GameManager.Instance.GridManager.GetTileAngle(_currentTile._location, target._location), oldRotation.z);
+
+        Vector2Int currentLocation;
+        if (GameManager.Instance.TurnManager.CurrentGhost == null)
+            currentLocation = _currentTile._location;
+        else
+            currentLocation = GameManager.Instance.TurnManager.CurrentGhost.CurrentTile._location;
+
+        Vector3 newRotationV3 = new Vector3(oldRotation.x, GameManager.Instance.GridManager.GetTileAngle(currentLocation, target._location), oldRotation.z);
         Quaternion newRotationQUAT = new Quaternion();
         newRotationQUAT.eulerAngles = newRotationV3;
         _weaponsVisionCone[_currentWeaponSelected].transform.rotation = newRotationQUAT;

@@ -275,6 +275,7 @@ public class GridManager : MonoBehaviour
             if (thisTileAngle >= minAngle && thisTileAngle <= maxAngle)
             {
                 tile._attackSprite.SetActive(true);
+                tile._deadAttackSprite.SetActive(false);
                 _activeAttackTile.Add(tile);
             }
             else
