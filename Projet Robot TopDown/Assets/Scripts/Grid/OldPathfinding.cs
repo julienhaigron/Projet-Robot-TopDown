@@ -45,7 +45,7 @@ public class OldPathfinding : MonoBehaviour
                 if (tile._g <= limit)
                 {
                     //activate movement cell
-                    tile._movementSprite.SetActive(true);
+                    //tile._movementSprite.SetActive(true);
                     frontierTile.Add(tile);
                 }
             }

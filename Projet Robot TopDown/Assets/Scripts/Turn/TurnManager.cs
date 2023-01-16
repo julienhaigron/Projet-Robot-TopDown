@@ -33,7 +33,7 @@ public class TurnManager : MonoBehaviour
         _AIActions.Enqueue(action);
 
         //pay action cost
-        Debug.Log("movment cost : " + action._cost);
+        Debug.Log("action cost : " + action._cost);
         CurrentSelectedPlayer.CurrentActionPoints -= action._cost;
         CurrentSelectedPlayer._actionPointText.SetText(CurrentSelectedPlayer.CurrentActionPoints.ToString());
 
@@ -115,6 +115,9 @@ public class TurnManager : MonoBehaviour
     public void AddAttackIfPossibleAction(PlayerController robot, int weaponId)
     {
         GameManager.Instance.GridManager.DeactivateAttackCellSprite();
+        GameManager.Instance.TurnManager.CurrentSelectedPlayer.DestroyWeaponCones();
+        GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentRobotAction = PlayerController.RobotActions.Move;
+        GameManager.Instance.TurnManager.CurrentSelectedPlayer.InitWeapons();
 
         AttackIfPossibleAction action = new AttackIfPossibleAction(robot, weaponId);
         AddAIActionToQueue(action);
@@ -123,6 +126,9 @@ public class TurnManager : MonoBehaviour
     public void AddRotateWeaponAction(float rotation, PlayerController robot, int weaponId)
     {
         GameManager.Instance.GridManager.DeactivateAttackCellSprite();
+        GameManager.Instance.TurnManager.CurrentSelectedPlayer.DestroyWeaponCones();
+        GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentRobotAction = PlayerController.RobotActions.Move;
+        GameManager.Instance.TurnManager.CurrentSelectedPlayer.InitWeapons();
 
         RotateWeaponAction action = new RotateWeaponAction(rotation, robot, weaponId);
         AddAIActionToQueue(action);

@@ -20,6 +20,7 @@ public class Tile : MonoBehaviour
     public GameObject _movementSprite;
     public GameObject _pathSprite;
     public GameObject _attackSprite;
+    public GameObject _deadAttackSprite;
 
     public int CompareTo(Tile tile)
     {
@@ -59,10 +60,10 @@ public class Tile : MonoBehaviour
                     break;
             }
         }
-        if (_movementSprite.activeSelf && GameManager.Instance.TurnManager.CurrentTurnState == TurnManager.TurnState.RecordingPlayerActions)
+        /*if (_movementSprite.activeSelf && GameManager.Instance.TurnManager.CurrentTurnState == TurnManager.TurnState.RecordingPlayerActions)
         {
             GameManager.Instance.TurnManager.AddMovementAction(this);
-        }
+        }*/
     }
 
     private void OnMouseEnter()

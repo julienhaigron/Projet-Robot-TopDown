@@ -20,6 +20,7 @@ public class GridManager : MonoBehaviour
 
     //robot attack
     public List<Tile> _activeAttackTile;
+    public List<Tile> _activeDeadAttackTile;
 
     #region Singleton
     private static GridManager instance = null;
@@ -216,6 +217,11 @@ public class GridManager : MonoBehaviour
         _activeMovmentTile = new List<Tile>();
 
         _activeMovmentTile = GameManager.Instance.Pathfinding.Frontier(source, speed);
+
+        foreach(Tile tile in _activeMovmentTile)
+        {
+            tile._movementSprite.SetActive(true);
+        }
     }
 
     public void DeactivateMovementCellSprite()
@@ -233,14 +239,29 @@ public class GridManager : MonoBehaviour
             activeTile._pathSprite.SetActive(false);
         }
     }
-    
+    public void DeactivateAttackCellSprite()
+    {
+        foreach (Tile activeTile in _activeAttackTile)
+        {
+            activeTile._attackSprite.SetActive(false);
+        }
+    }
+
+    public void DeactivateDeadAttackCellSprite()
+    {
+        foreach (Tile activeTile in _activeDeadAttackTile)
+        {
+            activeTile._deadAttackSprite.SetActive(false);
+        }
+    }
+
     //weapon
     public void ActivateWeaponConeTiles(Tile target)
     {
         PlayerController robot = GameManager.Instance.TurnManager.CurrentSelectedPlayer;
         //get tiles in cirle around weapon._range (frontier)
         WeaponStats weapon = robot._robotStats._weapons[robot.CurrentWeaponSelected];
-        List<Tile> frontier = GameManager.Instance.Pathfinding.VisibleTiles(robot.CurrentTile, weapon._range);
+        List<Tile> frontier = GameManager.Instance.Pathfinding.Frontier(robot.CurrentTile._location, weapon._range);
 
         //check if tiles angle is in weaponConeAngleRange
         //if true then turn on tile's "attack" sprite in cone
@@ -256,6 +277,11 @@ public class GridManager : MonoBehaviour
                 tile._attackSprite.SetActive(true);
                 _activeAttackTile.Add(tile);
             }
+            else
+            {
+                tile._deadAttackSprite.SetActive(true);
+                _activeDeadAttackTile.Add(tile);
+            }
         }
     }
 
@@ -266,17 +292,20 @@ public class GridManager : MonoBehaviour
     /// <returns></returns>
     public float GetTileAngle(Vector2Int origin, Vector2Int destination)
     {
-        Vector2Int P1 = new Vector2Int(1, 0); //north
-        Vector2Int P2 = origin; //origin
-        Vector2Int P3 = destination; //destination
-        return Mathf.Atan2(P3.y - P1.y, P3.x - P1.x) - Mathf.Atan2(P2.y - P1.y, P2.x - P1.x);
-    }
+        float x1 = origin.x + 1 - origin.x; //Vector 1 - x
+        float y1 = origin.y - origin.y; //Vector 1 - y
 
-    public void DeactivateAttackCellSprite()
-    {
-        foreach (Tile activeTile in _activeAttackTile)
+        float x2 = destination.x - origin.x; //Vector 2 - x
+        float y2 = destination.y - origin.y; //Vector 2 - y
+
+        float angle = Mathf.Atan2(y1, x1) - Mathf.Atan2(y2, x2);
+        angle = angle * 360 / (2 * Mathf.PI);
+
+        if (angle < 0)
         {
-            activeTile._attackSprite.SetActive(false);
+            angle += 360;
         }
+
+        return angle;
     }
 }

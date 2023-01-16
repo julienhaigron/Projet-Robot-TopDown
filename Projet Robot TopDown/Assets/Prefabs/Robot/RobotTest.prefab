@@ -288,6 +288,9 @@ MonoBehaviour:
   _robotStats: {fileID: 11400000, guid: a71e703f274da674b8b3d560cf428af7, type: 2}
   _weaponVisionConePrefab: {fileID: 5379137193031697172, guid: 58ce68819173d584b88ce7634cb804d6,
     type: 3}
+  _weaponVisionConeGreyPrefab: {fileID: 5379137193031697172, guid: a729deeca92716f4fa9e85022734f1d9,
+    type: 3}
+  _weaponsTarget: []
   _gameManager: {fileID: 0}
   _rb: {fileID: 4139580829069496223}
   _bc: {fileID: 7283362376283455193}

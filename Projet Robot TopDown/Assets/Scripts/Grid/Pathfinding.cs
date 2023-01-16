@@ -21,7 +21,7 @@ public class Pathfinding : MonoBehaviour
                 if (Vector2Int.Distance(source, tile._location) <= limit)
                 {
                     //activate movement cell
-                    tile._movementSprite.SetActive(true);
+                    //tile._movementSprite.SetActive(true);
                     tile._parentNode = null;
                     frontierTile.Add(tile);
                 }
