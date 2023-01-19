@@ -22,6 +22,9 @@ public class GridManager : MonoBehaviour
     public List<Tile> _activeAttackTile;
     public List<Tile> _activeDeadAttackTile;
 
+    //visible tiles
+    private List<Tile> _visibleTiles;
+
     #region Singleton
     private static GridManager instance = null;
     public static GridManager Instance
@@ -36,6 +39,11 @@ public class GridManager : MonoBehaviour
         }
     }
     #endregion
+
+    private void Start()
+    {
+        _visibleTiles = new List<Tile>();
+    }
 
     [ContextMenu("CreateGrid")]
     public void CreateGrid()
@@ -209,7 +217,28 @@ public class GridManager : MonoBehaviour
 
     public void UpdateVisibleTiles()
     {
-        //GameManager.Instance.Pathfinding.VisibleTiles(GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentTile, GameManager.Instance.TurnManager.CurrentSelectedPlayer._robotStats._viewDistance);
+        if (_visibleTiles == null)
+            _visibleTiles = new List<Tile>();
+
+        foreach (Tile oldVisibleTile in _visibleTiles)
+        {
+            oldVisibleTile.SetTileVisibility(Tile.TileVisibilityState.NotVisible);
+        }
+
+        //make visible new tiles
+        List<Tile> newVisibleTiles = new List<Tile>();
+        foreach (PlayerController player in GameManager.Instance.TurnManager.Players)
+        {
+            List<Tile> thisPlayerVisibleTiles = GameManager.Instance.Pathfinding.VisibleTiles(player.CurrentTile, player._robotStats._viewDistance);
+            newVisibleTiles.AddRange(thisPlayerVisibleTiles);
+        }
+
+        foreach (Tile tile in newVisibleTiles)
+        {
+            tile.SetTileVisibility(Tile.TileVisibilityState.Visible);
+        }
+
+        _visibleTiles = newVisibleTiles;
     }
 
     public void ActivateMovementCell(Vector2Int source, int speed)
@@ -218,7 +247,7 @@ public class GridManager : MonoBehaviour
 
         _activeMovmentTile = GameManager.Instance.Pathfinding.Frontier(source, speed);
 
-        foreach(Tile tile in _activeMovmentTile)
+        foreach (Tile tile in _activeMovmentTile)
         {
             tile._movementSprite.SetActive(true);
         }
@@ -256,22 +285,23 @@ public class GridManager : MonoBehaviour
     }
 
     //weapon
-    public void ActivateWeaponConeTiles(Tile target)
+    public void ActivateWeaponConeTiles(Tile origin, Tile target)
     {
         PlayerController robot = GameManager.Instance.TurnManager.CurrentSelectedPlayer;
-        //get tiles in cirle around weapon._range (frontier)
         WeaponStats weapon = robot._robotStats._weapons[robot.CurrentWeaponSelected];
-        List<Tile> frontier = GameManager.Instance.Pathfinding.Frontier(robot.CurrentTile._location, weapon._range);
+
+        //get tiles in cirle around weapon._range (frontier)
+        List<Tile> frontier = GameManager.Instance.Pathfinding.Frontier(origin._location, weapon._range);
 
         //check if tiles angle is in weaponConeAngleRange
         //if true then turn on tile's "attack" sprite in cone
-        float targetAngle = GetTileAngle(robot.CurrentTile._location, target._location);
+        float targetAngle = GetTileAngle(origin._location, target._location);
         float minAngle = targetAngle - weapon._coneAngle / 2;
         float maxAngle = targetAngle + weapon._coneAngle / 2;
 
         foreach (Tile tile in frontier)
         {
-            float thisTileAngle = GetTileAngle(robot.CurrentTile._location, tile._location);
+            float thisTileAngle = GetTileAngle(origin._location, tile._location);
             if (thisTileAngle >= minAngle && thisTileAngle <= maxAngle)
             {
                 tile._attackSprite.SetActive(true);

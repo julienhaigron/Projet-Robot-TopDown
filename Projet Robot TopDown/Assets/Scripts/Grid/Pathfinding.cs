@@ -45,14 +45,11 @@ public class Pathfinding : MonoBehaviour
                 if (!tileInLine._isWalkable)
                 {
                     visibleTiles.Remove(tile);
-                    tile._groundSR.SetActive(false);
-                    isVisible = false;
                 }
             }
-
-            //TODO : fog of war
-            tile._isVisible = isVisible;
         }
+
+        Debug.Log("Nb of visible tiles: " + visibleTiles.Count);
 
         return visibleTiles;
     }

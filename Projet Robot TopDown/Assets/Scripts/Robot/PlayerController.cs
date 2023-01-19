@@ -21,8 +21,8 @@ public class PlayerController : MonoBehaviour
 
     //weapons
     public GameObject _weaponVisionConePrefab;
-    public GameObject _weaponVisionConeGreyPrefab;
     private List<GameObject> _weaponsVisionCone;
+    public GameObject _weaponVisionConeGreyPrefab;
     private GameObject _weaponVisionConeGrey;
     private int _currentWeaponSelected;
     public int CurrentWeaponSelected { get => _currentWeaponSelected; set => _currentWeaponSelected = value; }
@@ -92,6 +92,26 @@ public class PlayerController : MonoBehaviour
         _currentPath = path;
         _posInPath = 0;
         SetDestination(path[_posInPath++].transform.position + new Vector3(0, _bc.size.y / 2f, 0));
+    }
+
+    public void ActivateChost()
+    {
+        _currentSelectionState = PlayerController.RobotSelectionState.GhostActivated;
+
+        foreach(GameObject cone in _weaponsVisionCone)
+        {
+            cone.SetActive(false);
+        }
+    }
+
+    public void DeactivateGhost()
+    {
+        _currentSelectionState = PlayerController.RobotSelectionState.Unselected;
+
+        foreach (GameObject cone in _weaponsVisionCone)
+        {
+            cone.SetActive(true);
+        }
     }
 
     #region Movement
@@ -226,7 +246,7 @@ public class PlayerController : MonoBehaviour
 
         GameManager.Instance.GridManager.DeactivateMovementCellSprite();
         GameManager.Instance.GridManager.DeactivateAttackCellSprite();
-        GameManager.Instance.GridManager.ActivateWeaponConeTiles(target);
+        GameManager.Instance.GridManager.ActivateWeaponConeTiles(_currentTile, target);
     }
 
     public void DestroyWeaponCones()

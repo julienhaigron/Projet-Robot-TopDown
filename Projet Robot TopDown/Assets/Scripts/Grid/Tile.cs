@@ -6,21 +6,24 @@ public class Tile : MonoBehaviour
 {
     public int _autoCreationId;
     public Vector2Int _location;
-    public bool _isWalkable = true;
-    public bool _isVisible = false;
 
+    private TileVisibilityState _currentVisibilityState = TileVisibilityState.Undiscovered;
+    public TileVisibilityState CurrentVisibilityState { get => _currentVisibilityState; set => _currentVisibilityState = value; }
+    public enum TileVisibilityState
+    {
+        Undiscovered,
+        NotVisible,
+        Visible
+    }
+
+    #region Pathfinding
+    public bool _isWalkable = true;
     public float _g = 1;
     public float _h = 0;
     public float _f { get { return _g + _h; } }
     public NodeState _state { get; set; }
     public Tile _parentNode { get; set; }
     public enum NodeState { Untested, Open, Closed }
-
-    public GameObject _groundSR;
-    public GameObject _movementSprite;
-    public GameObject _pathSprite;
-    public GameObject _attackSprite;
-    public GameObject _deadAttackSprite;
 
     public int CompareTo(Tile tile)
     {
@@ -39,6 +42,36 @@ public class Tile : MonoBehaviour
     {
         _isWalkable = false;
     }
+
+    #endregion
+
+    public GameObject _groundSR;
+    public GameObject _movementSprite;
+    public GameObject _pathSprite;
+    public GameObject _attackSprite;
+    public GameObject _deadAttackSprite;
+
+    public void SetTileVisibility(TileVisibilityState tileVisibilityState)
+    {
+        CurrentVisibilityState = tileVisibilityState;
+
+        switch (CurrentVisibilityState)
+        {
+            case TileVisibilityState.Undiscovered:
+                _groundSR.SetActive(false);
+                break;
+            case TileVisibilityState.NotVisible:
+                _groundSR.SetActive(true);
+                //TODO : hide enemy on this tile (if exist)
+                break;
+            case TileVisibilityState.Visible:
+                _groundSR.SetActive(true);
+                //TODO : show enemy on this tile (if exist)
+                break;
+        }
+    }
+
+    #region Controller
 
     private void OnMouseUp()
     {
@@ -97,8 +130,11 @@ public class Tile : MonoBehaviour
                     break;
 
                 case PlayerController.RobotActions.TurnWeapon:
-                    PlayerController currentPlayer = GameManager.Instance.TurnManager.CurrentSelectedPlayer;
-                    currentPlayer.UpdateWeaponTarget(this);
+
+                    if (GameManager.Instance.TurnManager.CurrentGhost != null)
+                        GameManager.Instance.TurnManager.CurrentGhost.UpdateWeaponTarget(this);
+                    else
+                        GameManager.Instance.TurnManager.CurrentSelectedPlayer.UpdateWeaponTarget(this);
                     break;
 
                 case PlayerController.RobotActions.ShootIfPossible:
@@ -117,5 +153,7 @@ public class Tile : MonoBehaviour
             GameManager.Instance.GridManager.DeactivatePathCellSprite();
         }
     }
+
+    #endregion
 
 }

@@ -13,6 +13,13 @@ public class GhostController : MonoBehaviour
     private PlayerController.RobotSelectionState _currentSelectionState;
     public PlayerController.RobotSelectionState CurrentSelectionState { get => _currentSelectionState; set => _currentSelectionState = value; }
 
+    //weapons
+    public GameObject _weaponVisionConePrefab;
+    public List<GameObject> _weaponsVisionCone;
+    public GameObject _weaponVisionConeGreyPrefab;
+    public GameObject _weaponVisionConeGrey;
+    public List<Tile> _weaponsTarget;
+
     public GameObject _ui;
     public TextMeshProUGUI _actionPointText;
 
@@ -34,4 +41,68 @@ public class GhostController : MonoBehaviour
                 break;
         }
     }
+
+    public void InitWeapons()
+    {
+        _weaponsVisionCone = new List<GameObject>();
+        _weaponsTarget = new List<Tile>();
+
+        foreach (WeaponStats weaponStat in _connectedPlayer._robotStats._weapons)
+        {
+            GameObject weapon = Instantiate(_weaponVisionConePrefab, transform.position, Quaternion.identity, transform);
+            weapon.transform.localScale = new Vector3((float)(weaponStat._range + 0.5f) / 1.5f, (float)(weaponStat._range + 0.5f) / 1.5f, (float)(weaponStat._range + 0.5f) / 1.5f);
+            _weaponsVisionCone.Add(weapon);
+            _weaponsTarget.Add(GameManager.Instance.GridManager.GetTile(_currentTile._location.x + 1, _currentTile._location.y));
+        }
+    }
+
+    public void InitUnchaingedAngleWeapon()
+    {
+        int weaponId = _connectedPlayer.CurrentWeaponSelected;
+        _weaponVisionConeGrey = Instantiate(_weaponVisionConeGreyPrefab, transform.position, Quaternion.identity, transform);
+        _weaponVisionConeGrey.transform.localScale = new Vector3((float)(_connectedPlayer._robotStats._weapons[weaponId]._range + 0.5f) / 1.5f,
+            (float)(_connectedPlayer._robotStats._weapons[weaponId]._range + 0.5f) / 1.5f, (float)(_connectedPlayer._robotStats._weapons[weaponId]._range + 0.5f) / 1.5f);
+
+        Vector3 oldRotation = transform.rotation.eulerAngles;
+
+        Vector2Int currentLocation = GameManager.Instance.TurnManager.CurrentGhost.CurrentTile._location;
+
+        Vector3 newRotationV3 = new Vector3(oldRotation.x, GameManager.Instance.GridManager.GetTileAngle(currentLocation, _weaponsTarget[weaponId]._location), oldRotation.z);
+        Quaternion newRotationQUAT = new Quaternion();
+        newRotationQUAT.eulerAngles = newRotationV3;
+        _weaponVisionConeGrey.transform.rotation = newRotationQUAT;
+    }
+
+    public void UpdateWeaponTarget(Tile target)
+    {
+        if (_weaponsVisionCone[_connectedPlayer.CurrentWeaponSelected] == null)
+            return;
+
+        Vector3 oldRotation = transform.rotation.eulerAngles;
+        //Debug.Log("angle : " + GameManager.Instance.GridManager.GetTileAngle(_currentTile._location, target._location));
+        //Debug.Log("angle : " + GameManager.Instance.GridManager.GetTileAngle(_currentTile._location, target._location));
+
+        Vector2Int currentLocation = GameManager.Instance.TurnManager.CurrentGhost.CurrentTile._location;
+
+        Vector3 newRotationV3 = new Vector3(oldRotation.x, GameManager.Instance.GridManager.GetTileAngle(currentLocation, target._location), oldRotation.z);
+        Quaternion newRotationQUAT = new Quaternion();
+        newRotationQUAT.eulerAngles = newRotationV3;
+        _weaponsVisionCone[_connectedPlayer.CurrentWeaponSelected].transform.rotation = newRotationQUAT;
+
+        GameManager.Instance.GridManager.DeactivateMovementCellSprite();
+        GameManager.Instance.GridManager.DeactivateAttackCellSprite();
+        GameManager.Instance.GridManager.ActivateWeaponConeTiles(_currentTile, target);
+    }
+
+    public void DepopGhost()
+    {
+        foreach(GameObject cone in _weaponsVisionCone)
+        {
+            Destroy(cone);
+        }
+        Destroy(_weaponVisionConeGrey);
+        GameManager.Instance.TurnManager.CurrentGhost = null;
+        Destroy(gameObject);
+    }
+
 }

@@ -8,6 +8,8 @@ public class TurnManager : MonoBehaviour
     private GhostController _currentGhost;
     public GhostController CurrentGhost { get => _currentGhost; set => _currentGhost = value; }
     private Queue<AIAction> _AIActions = new Queue<AIAction>();
+
+    public List<PlayerController> Players;
     private PlayerController _currentSelectedPlayer;
     public PlayerController CurrentSelectedPlayer { get => _currentSelectedPlayer; set => _currentSelectedPlayer = value; }
 
@@ -25,6 +27,13 @@ public class TurnManager : MonoBehaviour
 
     private void Start()
     {
+        Players = new List<PlayerController>();
+        GameObject[] playersGO = GameObject.FindGameObjectsWithTag("Player");
+        foreach(GameObject player in playersGO)
+        {
+            Players.Add(player.GetComponent<PlayerController>());
+        }
+        _currentSelectedPlayer = Players[0];
         _currentTurnState = TurnState.RecordingPlayerActions;
     }
 
@@ -48,8 +57,9 @@ public class TurnManager : MonoBehaviour
         {
             //depop ghost
             if (_currentGhost != null)
-                Destroy(_currentGhost.gameObject);
+                _currentGhost.DepopGhost();
 
+            _currentSelectedPlayer.DeactivateGhost();
             _currentSelectedPlayer.CurrentSelectionState = PlayerController.RobotSelectionState.Unselected;
             GameManager.Instance.GridManager.DeactivateMovementCellSprite();
 
@@ -102,7 +112,7 @@ public class TurnManager : MonoBehaviour
 
     public void PopGhost(Tile ghostTile)
     {
-        _currentSelectedPlayer.CurrentSelectionState = PlayerController.RobotSelectionState.GhostActivated;
+        GameManager.Instance.TurnManager.CurrentSelectedPlayer.ActivateChost();
 
         Vector3 position = ghostTile.transform.position + new Vector3(0, 1 / 2f, 0);
         GameObject currentGhostGO = Instantiate(_ghostPrefab, position, Quaternion.identity);
@@ -110,6 +120,7 @@ public class TurnManager : MonoBehaviour
         GhostController ghostController = currentGhostGO.GetComponent<GhostController>();
         ghostController._connectedPlayer = CurrentSelectedPlayer;
         ghostController.CurrentTile = ghostTile;
+        ghostController.InitWeapons();
         _currentGhost = ghostController;
     }
 

@@ -40,8 +40,11 @@ public class HUD : MonoBehaviour
         {
             GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentRobotAction = PlayerController.RobotActions.TurnWeapon;
 
-            //instantiate old moove prefab
-            GameManager.Instance.TurnManager.CurrentSelectedPlayer.InitUnchaingedAngleWeapon();
+            //instantiate cone prefab
+            if (GameManager.Instance.TurnManager.CurrentGhost != null)
+                GameManager.Instance.TurnManager.CurrentGhost.InitUnchaingedAngleWeapon();
+            else
+                GameManager.Instance.TurnManager.CurrentSelectedPlayer.InitUnchaingedAngleWeapon();
         }
     }
 
