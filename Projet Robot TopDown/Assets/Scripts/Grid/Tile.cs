@@ -85,18 +85,13 @@ public class Tile : MonoBehaviour
                     GameManager.Instance.TurnManager.AddMovementAction(this);
                     break;
                 case PlayerController.RobotActions.TurnWeapon:
-                    float rotation = GameManager.Instance.GridManager.GetTileAngle(robot._weaponsTarget[robot.CurrentWeaponSelected]._location, this._location);
-                    GameManager.Instance.TurnManager.AddRotateWeaponAction(rotation, robot, robot.CurrentWeaponSelected);
+                    GameManager.Instance.TurnManager.AddRotateWeaponAction(this, robot, robot.CurrentWeaponSelected);
                     break;
                 case PlayerController.RobotActions.ShootIfPossible:
                     GameManager.Instance.TurnManager.AddAttackIfPossibleAction(robot, robot.CurrentWeaponSelected);
                     break;
             }
         }
-        /*if (_movementSprite.activeSelf && GameManager.Instance.TurnManager.CurrentTurnState == TurnManager.TurnState.RecordingPlayerActions)
-        {
-            GameManager.Instance.TurnManager.AddMovementAction(this);
-        }*/
     }
 
     private void OnMouseEnter()

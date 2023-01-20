@@ -98,7 +98,7 @@ public class PlayerController : MonoBehaviour
     {
         _currentSelectionState = PlayerController.RobotSelectionState.GhostActivated;
 
-        foreach(GameObject cone in _weaponsVisionCone)
+        foreach (GameObject cone in _weaponsVisionCone)
         {
             cone.SetActive(false);
         }
@@ -197,7 +197,7 @@ public class PlayerController : MonoBehaviour
 
         foreach (WeaponStats weaponStat in _robotStats._weapons)
         {
-            GameObject weapon = Instantiate(_weaponVisionConePrefab, transform.position, Quaternion.identity, transform);
+            GameObject weapon = Instantiate(_weaponVisionConePrefab, transform.position + new Vector3(0, -0.48f, 0), Quaternion.identity, transform);
             weapon.transform.localScale = new Vector3((float)(weaponStat._range + 0.5f) / 1.5f, (float)(weaponStat._range + 0.5f) / 1.5f, (float)(weaponStat._range + 0.5f) / 1.5f);
             _weaponsVisionCone.Add(weapon);
             _weaponsTarget.Add(GameManager.Instance.GridManager.GetTile(_currentTile._location.x + 1, _currentTile._location.y));
@@ -207,9 +207,12 @@ public class PlayerController : MonoBehaviour
     public void InitUnchaingedAngleWeapon()
     {
         int weaponId = _currentWeaponSelected;
-        _weaponVisionConeGrey = Instantiate(_weaponVisionConeGreyPrefab, transform.position, Quaternion.identity, transform);
-        _weaponVisionConeGrey.transform.localScale = new Vector3((float)(_robotStats._weapons[weaponId]._range + 0.5f) / 1.5f, (float)(_robotStats._weapons[weaponId]._range + 0.5f) / 1.5f, (float)(_robotStats._weapons[weaponId]._range + 0.5f) / 1.5f);
-        
+        if (_weaponVisionConeGrey == null)
+        {
+            _weaponVisionConeGrey = Instantiate(_weaponVisionConeGreyPrefab, transform.position + new Vector3(0, -0.48f, 0), Quaternion.identity, transform);
+            _weaponVisionConeGrey.transform.localScale = new Vector3((float)(_robotStats._weapons[weaponId]._range + 0.5f) / 1.5f, (float)(_robotStats._weapons[weaponId]._range + 0.5f) / 1.5f, (float)(_robotStats._weapons[weaponId]._range + 0.5f) / 1.5f);
+        }
+
         Vector3 oldRotation = transform.rotation.eulerAngles;
 
         Vector2Int currentLocation;
@@ -229,7 +232,7 @@ public class PlayerController : MonoBehaviour
         if (_weaponsVisionCone[_currentWeaponSelected] == null)
             return;
 
-        Vector3 oldRotation = transform.rotation.eulerAngles;
+        Vector3 oldRotation = _weaponsVisionCone[_currentWeaponSelected].transform.rotation.eulerAngles;
         //Debug.Log("angle : " + GameManager.Instance.GridManager.GetTileAngle(_currentTile._location, target._location));
         //Debug.Log("angle : " + GameManager.Instance.GridManager.GetTileAngle(_currentTile._location, target._location));
 
@@ -249,18 +252,33 @@ public class PlayerController : MonoBehaviour
         GameManager.Instance.GridManager.ActivateWeaponConeTiles(_currentTile, target);
     }
 
-    public void DestroyWeaponCones()
+    public void ResetWeaponCones()
     {
         //TODO : save position before destroying and rotate actual to old
-        //Destroy(_weaponVisionConeGrey);
-        foreach(GameObject weapon in _weaponsVisionCone)
+        Destroy(_weaponVisionConeGrey);
+
+
+        Vector2Int currentLocation;
+        if (GameManager.Instance.TurnManager.CurrentGhost == null)
+            currentLocation = _currentTile._location;
+        else
+            currentLocation = GameManager.Instance.TurnManager.CurrentGhost.CurrentTile._location;
+
+        int counter = 0;
+        foreach (GameObject weapon in _weaponsVisionCone)
         {
-            Destroy(weapon);
+            Vector3 oldRotation = transform.rotation.eulerAngles;
+            Vector3 newRotationV3 = new Vector3(oldRotation.x, GameManager.Instance.GridManager.GetTileAngle(currentLocation, _weaponsTarget[counter]._location), oldRotation.z);
+            Quaternion newRotationQUAT = new Quaternion();
+            newRotationQUAT.eulerAngles = newRotationV3;
+            _weaponsVisionCone[_currentWeaponSelected].transform.rotation = newRotationQUAT;
+            counter++;
         }
     }
 
-    public void SetWeaponRotation(float angle, int weaponId)
+    public void SetWeaponAim(Tile aimedTile, int weaponId)
     {
+        float angle = GameManager.Instance.GridManager.GetTileAngle(_currentTile._location, aimedTile._location);
         _weaponsVisionCone[weaponId].transform.Rotate(Vector3.up, angle);
 
         GameManager.Instance.TurnManager.PerformNextAIAction();

@@ -49,8 +49,6 @@ public class Pathfinding : MonoBehaviour
             }
         }
 
-        Debug.Log("Nb of visible tiles: " + visibleTiles.Count);
-
         return visibleTiles;
     }
 

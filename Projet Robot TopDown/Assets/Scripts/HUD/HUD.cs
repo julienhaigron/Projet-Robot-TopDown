@@ -24,7 +24,7 @@ public class HUD : MonoBehaviour
     public void MoveButton()
     {
         GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentRobotAction = PlayerController.RobotActions.Move;
-        GameManager.Instance.TurnManager.CurrentSelectedPlayer.DestroyWeaponCones();
+        GameManager.Instance.TurnManager.CurrentSelectedPlayer.ResetWeaponCones();
         GameManager.Instance.GridManager.DeactivateAttackCellSprite();
         GameManager.Instance.GridManager.DeactivateDeadAttackCellSprite();
 

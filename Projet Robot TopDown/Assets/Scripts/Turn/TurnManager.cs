@@ -34,6 +34,9 @@ public class TurnManager : MonoBehaviour
             Players.Add(player.GetComponent<PlayerController>());
         }
         _currentSelectedPlayer = Players[0];
+        _currentSelectedPlayer.CurrentSelectionState = PlayerController.RobotSelectionState.Selected;
+        GameManager.Instance.GridManager.ActivateMovementCell(_currentSelectedPlayer.CurrentTile._location, _currentSelectedPlayer.CurrentActionPoints);
+        GameManager.Instance.HUD.DisplayActionsButtons();
         _currentTurnState = TurnState.RecordingPlayerActions;
     }
 
@@ -127,7 +130,7 @@ public class TurnManager : MonoBehaviour
     public void AddAttackIfPossibleAction(PlayerController robot, int weaponId)
     {
         GameManager.Instance.GridManager.DeactivateAttackCellSprite();
-        GameManager.Instance.TurnManager.CurrentSelectedPlayer.DestroyWeaponCones();
+        GameManager.Instance.TurnManager.CurrentSelectedPlayer.ResetWeaponCones();
         GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentRobotAction = PlayerController.RobotActions.Move;
         GameManager.Instance.TurnManager.CurrentSelectedPlayer.InitWeapons();
 
@@ -135,14 +138,16 @@ public class TurnManager : MonoBehaviour
         AddAIActionToQueue(action);
     }
 
-    public void AddRotateWeaponAction(float rotation, PlayerController robot, int weaponId)
+    public void AddRotateWeaponAction(Tile aimedTile, PlayerController robot, int weaponId)
     {
-        GameManager.Instance.GridManager.DeactivateAttackCellSprite();
-        GameManager.Instance.TurnManager.CurrentSelectedPlayer.DestroyWeaponCones();
-        GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentRobotAction = PlayerController.RobotActions.Move;
-        GameManager.Instance.TurnManager.CurrentSelectedPlayer.InitWeapons();
+        GameManager.Instance.TurnManager.CurrentSelectedPlayer._weaponsTarget[weaponId] = aimedTile;
 
-        RotateWeaponAction action = new RotateWeaponAction(rotation, robot, weaponId);
+        GameManager.Instance.GridManager.DeactivateAttackCellSprite();
+        GameManager.Instance.TurnManager.CurrentSelectedPlayer.ResetWeaponCones();
+        GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentRobotAction = PlayerController.RobotActions.Move;
+        //GameManager.Instance.TurnManager.CurrentSelectedPlayer.InitWeapons();
+
+        RotateWeaponAction action = new RotateWeaponAction(aimedTile, robot, weaponId);
         AddAIActionToQueue(action);
     }
 

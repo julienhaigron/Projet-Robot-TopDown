@@ -5,13 +5,13 @@ using UnityEngine;
 public class RotateWeaponAction : AIAction
 {
     public float _from;
-    public float _rotation;
+    public Tile _aimedTile;
     public int _weaponId;
     public PlayerController _robot;
     
-    public RotateWeaponAction(float rotation, PlayerController robot, int weaponId)
+    public RotateWeaponAction(Tile tileAimed, PlayerController robot, int weaponId)
     {
-        _rotation = rotation;
+        _aimedTile = tileAimed;
         _robot = robot;
         _weaponId = weaponId;
         _cost = 0;
@@ -19,11 +19,11 @@ public class RotateWeaponAction : AIAction
 
     public override void Perform()
     {
-        SendRotationToRobot();
+        SendAimToRobot();
     }
 
-    public void SendRotationToRobot()
+    public void SendAimToRobot()
     {
-        _robot.SetWeaponRotation(_rotation, _weaponId);
+        _robot.SetWeaponAim(_aimedTile, _weaponId);
     }
 }
