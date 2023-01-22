@@ -67,6 +67,8 @@ public class PlayerController : MonoBehaviour
         //debug
         _gameManager.GridManager.LoadGridInScene();
         _currentTile = _gameManager.GridManager.GetTile(8, 8);
+        GameManager.Instance.GridManager.ActivateMovementCell(CurrentTile._location, CurrentActionPoints);
+
         GameManager.Instance.GridManager.UpdateVisibleTiles();
 
         InitWeapons();

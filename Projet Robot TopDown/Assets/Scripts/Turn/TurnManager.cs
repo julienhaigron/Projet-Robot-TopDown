@@ -35,7 +35,7 @@ public class TurnManager : MonoBehaviour
         }
         _currentSelectedPlayer = Players[0];
         _currentSelectedPlayer.CurrentSelectionState = PlayerController.RobotSelectionState.Selected;
-        GameManager.Instance.GridManager.ActivateMovementCell(_currentSelectedPlayer.CurrentTile._location, _currentSelectedPlayer.CurrentActionPoints);
+
         GameManager.Instance.HUD.DisplayActionsButtons();
         _currentTurnState = TurnState.RecordingPlayerActions;
     }

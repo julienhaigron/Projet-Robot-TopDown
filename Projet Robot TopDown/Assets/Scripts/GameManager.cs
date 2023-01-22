@@ -38,15 +38,18 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
-    // Start is called before the first frame update
-    void Start()
+    public void InitGame()
     {
-        
-    }
+        //init grid
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        //instantiate ally robot
+
+        //instantiate enemy robot
+
+        //select first platyers and activate actions HUI
+
+        //UpdateVisibleTiles
+
+        //start record player's robots actions
     }
 }
