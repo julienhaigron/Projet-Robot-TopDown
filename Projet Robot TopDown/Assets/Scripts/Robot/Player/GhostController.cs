@@ -79,8 +79,6 @@ public class GhostController : MonoBehaviour
             return;
 
         Vector3 oldRotation = transform.rotation.eulerAngles;
-        //Debug.Log("angle : " + GameManager.Instance.GridManager.GetTileAngle(_currentTile._location, target._location));
-        //Debug.Log("angle : " + GameManager.Instance.GridManager.GetTileAngle(_currentTile._location, target._location));
 
         Vector2Int currentLocation = GameManager.Instance.TurnManager.CurrentGhost.CurrentTile._location;
 
@@ -101,8 +99,9 @@ public class GhostController : MonoBehaviour
             Destroy(cone);
         }
         Destroy(_weaponVisionConeGrey);
-        GameManager.Instance.TurnManager.CurrentGhost = null;
+        _weaponsVisionCone = null;
         Destroy(gameObject);
+        GameManager.Instance.TurnManager.CurrentGhost = null;
     }
 
 }

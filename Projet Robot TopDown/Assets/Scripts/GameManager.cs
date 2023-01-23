@@ -38,18 +38,32 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
+    private void Start()
+    {
+        InitGame();
+    }
+
     public void InitGame()
     {
-        //init grid
-
         //instantiate ally robot
+        TurnManager.Players = new List<PlayerController>();
+        GameObject[] playersGO = GameObject.FindGameObjectsWithTag("Player");
+        foreach (GameObject player in playersGO)
+        {
+            TurnManager.Players.Add(player.GetComponent<PlayerController>());
+        }
+
+        //select first platyers
+        TurnManager.CurrentSelectedPlayer = TurnManager.Players[0];
+        TurnManager.CurrentSelectedPlayer.CurrentSelectionState = PlayerController.RobotSelectionState.Selected;
 
         //instantiate enemy robot
 
-        //select first platyers and activate actions HUI
 
-        //UpdateVisibleTiles
+        //setup HUD
+        GameManager.Instance.HUD.DisplayActionsButtons();
 
         //start record player's robots actions
+        TurnManager.CurrentTurnState = TurnManager.TurnState.RecordingPlayerActions;
     }
 }

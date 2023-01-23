@@ -25,21 +25,6 @@ public class TurnManager : MonoBehaviour
         PerformingEnemyActions
     }
 
-    private void Start()
-    {
-        Players = new List<PlayerController>();
-        GameObject[] playersGO = GameObject.FindGameObjectsWithTag("Player");
-        foreach(GameObject player in playersGO)
-        {
-            Players.Add(player.GetComponent<PlayerController>());
-        }
-        _currentSelectedPlayer = Players[0];
-        _currentSelectedPlayer.CurrentSelectionState = PlayerController.RobotSelectionState.Selected;
-
-        GameManager.Instance.HUD.DisplayActionsButtons();
-        _currentTurnState = TurnState.RecordingPlayerActions;
-    }
-
     public void AddAIActionToQueue(AIAction action)
     {
         _AIActions.Enqueue(action);
