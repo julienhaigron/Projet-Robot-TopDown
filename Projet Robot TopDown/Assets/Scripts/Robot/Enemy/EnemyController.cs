@@ -76,7 +76,7 @@ public class EnemyController : MonoBehaviour
         {
             for (int j = 0; j < players.Count; j++)
             {
-                if(visibleTiles[j]._location == players[j].CurrentTile._location)
+                if (visibleTiles[j]._location == players[j].CurrentTile._location)
                 {
                     //found player in view range
                     playersInRange.Add(players[j]);
@@ -84,7 +84,7 @@ public class EnemyController : MonoBehaviour
             }
         }
 
-        if(playersInRange.Count > 0)
+        if (playersInRange.Count > 0)
         {
             _currentAIState = AIState.Eliminate;
             _aiTarget = playersInRange[playersInRange.Count - 1];
@@ -97,20 +97,24 @@ public class EnemyController : MonoBehaviour
 
         //TODO : Rotate weapon toward next point
         RotateWeaponAction rotateAction = new RotateWeaponAction(nextPatrolPosition, this, 0);
-        GameManager.Instance.TurnManager.AddAIActionToQueue(rotateAction);
+        GameManager.Instance.TurnManager.AddEnemyAIActionToQueue(this, rotateAction);
 
         List<Tile> pathToNextPosition = GameManager.Instance.Pathfinding.FindPath(CurrentTile, nextPatrolPosition);
         int nbToDelete = pathToNextPosition.Count - _robotStats._actionPointsPerTurn;
         if (nbToDelete > 0)
         {
-            for(int i = 0; i< nbToDelete; i++)
+            for (int i = 0; i < nbToDelete; i++)
             {
                 pathToNextPosition.RemoveAt(pathToNextPosition.Count - 1);
             }
         }
 
-        MoveAction moveAction = new MoveAction(pathToNextPosition, this);
-        GameManager.Instance.TurnManager.AddAIActionToQueue(moveAction);
+        foreach (Tile tile in pathToNextPosition)
+        {
+            //add action to queue
+            MoveAction moveAction = new MoveAction(tile, this);
+            GameManager.Instance.TurnManager.AddEnemyAIActionToQueue(this, moveAction);
+        }
     }
 
     public void Eliminate()
@@ -133,6 +137,10 @@ public class EnemyController : MonoBehaviour
             }
         }
 
+        //TODO : design rest of behavior and implement it
+
+        //attack / cover / regroup
+
         if (playersInRange.Count == 0)
         {
             _currentAIState = AIState.Patrol;
@@ -144,20 +152,16 @@ public class EnemyController : MonoBehaviour
         {
             _aiTarget = playersInRange[playersInRange.Count - 1];
         }
-
-        //TODO : design rest of behavior and implement it
-
     }
 
     #endregion
 
     #region Movement
 
-    public void SetPath(List<Tile> path)
+    public void SetDestination(Tile destination)
     {
-        _currentPath = path;
-        _posInPath = 0;
-        SetDestination(path[_posInPath++].transform.position + new Vector3(0, _bc.size.y / 2f, 0));
+        //_currentPath = path;
+        SetDestination(destination.transform.position + new Vector3(0, _bc.size.y / 2f, 0));
     }
 
     public void SetDestination(Vector3 destination)
@@ -186,26 +190,16 @@ public class EnemyController : MonoBehaviour
 
     public void StopMovement()
     {
+        //reached the end
         _isMoving = false;
-        if (_posInPath == _currentPath.Count)
-        {
-            //reached the end
-            GameManager.Instance.TurnManager.PerformNextAIAction();
+        transform.localPosition = _destination;
 
-            transform.localPosition = _destination;
-
-            //reset physics
-            _rb.velocity = new Vector3(0, 0, 0);
-            _rb.angularVelocity = new Vector3(0, 0, 0);
-        }
-        else
-        {
-            //go to next tile
-            _currentTile = _currentPath[_posInPath];
-            SetDestination(_currentPath[_posInPath++].transform.position + new Vector3(0, _bc.size.y / 2f, 0));
-        }
+        //reset physics
+        _rb.velocity = new Vector3(0, 0, 0);
+        _rb.angularVelocity = new Vector3(0, 0, 0);
 
         GameManager.Instance.GridManager.UpdateVisibleTiles();
+        GameManager.Instance.TurnManager.EnemyRobotPerformedActionCallback(this);
     }
 
 
@@ -215,11 +209,25 @@ public class EnemyController : MonoBehaviour
 
     public void SetWeaponAim(Tile aimedTile, int weaponId)
     {
-        float angle = GameManager.Instance.GridManager.GetTileAngle(_currentTile._location, aimedTile._location);
+        //float angle = GameManager.Instance.GridManager.GetTileAngle(_currentTile._location, aimedTile._location);
         //_weaponsVisionCone[weaponId].transform.Rotate(Vector3.up, angle);
+
+        /*Vector3 oldRotation = Weapons[weaponId].transform.rotation.eulerAngles;
+
+        Vector2Int currentLocation;
+        if (GameManager.Instance.TurnManager.CurrentGhost == null)
+            currentLocation = _currentTile._location;
+        else
+            currentLocation = GameManager.Instance.TurnManager.CurrentGhost.CurrentTile._location;
+
+        Vector3 newRotationV3 = new Vector3(oldRotation.x, GameManager.Instance.GridManager.GetTileAngle(currentLocation, aimedTile._location), oldRotation.z);
+        Quaternion newRotationQUAT = new Quaternion();
+        newRotationQUAT.eulerAngles = newRotationV3;
+        Weapons[weaponId].transform.rotation = newRotationQUAT;*/
+
         //TODO : add enemy weapon range visuals
 
-        GameManager.Instance.TurnManager.PerformNextAIAction();
+        GameManager.Instance.TurnManager.EnemyRobotPerformedActionCallback(this);
     }
 
     #endregion

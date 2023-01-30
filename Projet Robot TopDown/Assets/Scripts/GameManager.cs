@@ -63,6 +63,9 @@ public class GameManager : MonoBehaviour
         //setup HUD
         GameManager.Instance.HUD.DisplayActionsButtons();
 
+        //init turn manager
+        GameManager.Instance.TurnManager.Init();
+
         //start record player's robots actions
         TurnManager.CurrentTurnState = TurnManager.TurnState.RecordingPlayerActions;
     }

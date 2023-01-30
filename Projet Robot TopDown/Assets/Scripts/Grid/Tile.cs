@@ -82,7 +82,7 @@ public class Tile : MonoBehaviour
             switch (GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentRobotAction)
             {
                 case PlayerController.RobotActions.Move:
-                    GameManager.Instance.TurnManager.AddMovementAction(this);
+                    GameManager.Instance.TurnManager.AddMovementAction(robot, this);
                     break;
                 case PlayerController.RobotActions.TurnWeapon:
                     GameManager.Instance.TurnManager.AddRotateWeaponAction(this, robot, robot.CurrentWeaponSelected);
@@ -96,7 +96,6 @@ public class Tile : MonoBehaviour
 
     private void OnMouseEnter()
     {
-        
         if (GameManager.Instance.TurnManager.CurrentSelectedPlayer != null && GameManager.Instance.TurnManager.CurrentTurnState == TurnManager.TurnState.RecordingPlayerActions)
         {
             switch (GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentRobotAction)
@@ -107,9 +106,15 @@ public class Tile : MonoBehaviour
                         List<Tile> pathToThisTile = new List<Tile>();
 
                         if (GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentSelectionState == PlayerController.RobotSelectionState.GhostActivated)
+                        {
                             pathToThisTile = GameManager.Instance.Pathfinding.FindPath(GameManager.Instance.TurnManager.CurrentGhost.CurrentTile, this);
+                            pathToThisTile.Remove(GameManager.Instance.TurnManager.CurrentGhost.CurrentTile);
+                        }
                         else
+                        {
                             pathToThisTile = GameManager.Instance.Pathfinding.FindPath(GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentTile, this);
+                            pathToThisTile.Remove(GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentTile);
+                        }
 
                         if (pathToThisTile == null || pathToThisTile.Count == 0)
                             return;
@@ -129,7 +134,7 @@ public class Tile : MonoBehaviour
                     if (GameManager.Instance.TurnManager.CurrentGhost != null)
                         GameManager.Instance.TurnManager.CurrentGhost.UpdateWeaponTarget(this);
                     else
-                        GameManager.Instance.TurnManager.CurrentSelectedPlayer.UpdateWeaponTarget(this);
+                        GameManager.Instance.TurnManager.CurrentSelectedPlayer.UpdateWeaponTarget(this, GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentWeaponSelected);
                     break;
 
                 case PlayerController.RobotActions.ShootIfPossible:
@@ -137,8 +142,6 @@ public class Tile : MonoBehaviour
                     break;
             }
         }
-
-
     }
 
     private void OnMouseExit()

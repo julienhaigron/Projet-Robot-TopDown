@@ -29,13 +29,13 @@ public class GhostController : MonoBehaviour
         switch (_currentSelectionState)
         {
             case PlayerController.RobotSelectionState.Unselected:
-                Debug.Log("activate movment sprite");
+                //Debug.Log("activate movment sprite");
                 GameManager.Instance.TurnManager.CurrentSelectedPlayer = _connectedPlayer;
                 GameManager.Instance.GridManager.ActivateMovementCell(_currentTile._location, _connectedPlayer.CurrentActionPoints);
                 _currentSelectionState = PlayerController.RobotSelectionState.Selected;
                 break;
             case PlayerController.RobotSelectionState.Selected:
-                Debug.Log("deactivate movment sprite");
+                //Debug.Log("deactivate movment sprite");
                 GameManager.Instance.GridManager.DeactivateMovementCellSprite();
                 _currentSelectionState = PlayerController.RobotSelectionState.Unselected;
                 break;
@@ -47,12 +47,15 @@ public class GhostController : MonoBehaviour
         _weaponsVisionCone = new List<GameObject>();
         _weaponsTarget = new List<Tile>();
 
+        int weaponId = 0;
         foreach (WeaponStats weaponStat in _connectedPlayer._robotStats._weapons)
         {
             GameObject weapon = Instantiate(_weaponVisionConePrefab, transform.position, Quaternion.identity, transform);
             weapon.transform.localScale = new Vector3((float)(weaponStat._range + 0.5f) / 1.5f, (float)(weaponStat._range + 0.5f) / 1.5f, (float)(weaponStat._range + 0.5f) / 1.5f);
+            weapon.transform.rotation = _connectedPlayer.Weapons[weaponId].transform.rotation;
             _weaponsVisionCone.Add(weapon);
             _weaponsTarget.Add(GameManager.Instance.GridManager.GetTile(_currentTile._location.x + 1, _currentTile._location.y));
+            weaponId++;
         }
     }
 

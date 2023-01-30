@@ -11,17 +11,16 @@ public class PlayerController : MonoBehaviour
     private int _currentActionPoints;
     public int CurrentActionPoints { get => _currentActionPoints; set => _currentActionPoints = value; }
     private Tile _currentTile;
-    public Tile CurrentTile { get => _currentTile; }
+    public Tile CurrentTile { get => _currentTile; set => _currentTile = value; }
 
     //movement
-    private List<Tile> _currentPath;
-    private int _posInPath;
-    private Vector3 _destination;
+    private Tile _currentTileDestination;
+    private Vector3 _currentVectorDestination;
     private bool _isMoving;
 
     //weapons
     public GameObject _weaponVisionConePrefab;
-    private List<GameObject> _weaponsVisionCone;
+    public List<GameObject> Weapons;
     public GameObject _weaponVisionConeGreyPrefab;
     private GameObject _weaponVisionConeGrey;
     private int _currentWeaponSelected;
@@ -62,7 +61,6 @@ public class PlayerController : MonoBehaviour
 
         NewTurn();
         _isMoving = false;
-        _posInPath = 0;
 
         //debug
         _gameManager.GridManager.LoadGridInScene();
@@ -76,9 +74,9 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (_isMoving && _destination != null)
+        if (_isMoving && _currentVectorDestination != null)
         {
-            MoveToDestination(_destination);
+            MoveToDestination(_currentVectorDestination);
         }
     }
 
@@ -89,18 +87,17 @@ public class PlayerController : MonoBehaviour
         _currentRobotAction = RobotActions.Move;
     }
 
-    public void SetPath(List<Tile> path)
+    public void SetDestination(Tile destination)
     {
-        _currentPath = path;
-        _posInPath = 0;
-        SetDestination(path[_posInPath++].transform.position + new Vector3(0, _bc.size.y / 2f, 0));
+        _currentTileDestination = destination;
+        SetDestination(destination.transform.position + new Vector3(0, _bc.size.y / 2f, 0));
     }
 
     public void ActivateChost()
     {
         _currentSelectionState = PlayerController.RobotSelectionState.GhostActivated;
 
-        foreach (GameObject cone in _weaponsVisionCone)
+        foreach (GameObject cone in Weapons)
         {
             cone.SetActive(false);
         }
@@ -110,7 +107,7 @@ public class PlayerController : MonoBehaviour
     {
         _currentSelectionState = PlayerController.RobotSelectionState.Unselected;
 
-        foreach (GameObject cone in _weaponsVisionCone)
+        foreach (GameObject cone in Weapons)
         {
             cone.SetActive(true);
         }
@@ -141,13 +138,13 @@ public class PlayerController : MonoBehaviour
     public void SetDestination(Vector3 destination)
     {
         _isMoving = true;
-        _destination = destination;
+        _currentVectorDestination = destination;
         MoveToDestination(destination);
     }
 
     public void MoveToDestination(Vector3 destination)
     {
-        float distance = Vector3.Distance(transform.localPosition, _destination);
+        float distance = Vector3.Distance(transform.localPosition, _currentVectorDestination);
 
         //3) apply velocity
         //_rb.velocity = _cardsMovementSpeed * difference;
@@ -165,25 +162,17 @@ public class PlayerController : MonoBehaviour
     public void StopMovement()
     {
         _isMoving = false;
-        if (_posInPath == _currentPath.Count)
-        {
-            //reached the end
-            GameManager.Instance.TurnManager.PerformNextAIAction();
 
-            transform.localPosition = _destination;
+        //reached the end
+        transform.localPosition = _currentVectorDestination;
+        CurrentTile = _currentTileDestination;
 
-            //reset physics
-            _rb.velocity = new Vector3(0, 0, 0);
-            _rb.angularVelocity = new Vector3(0, 0, 0);
-        }
-        else
-        {
-            //go to next tile
-            _currentTile = _currentPath[_posInPath];
-            SetDestination(_currentPath[_posInPath++].transform.position + new Vector3(0, _bc.size.y / 2f, 0));
-        }
+        //reset physics
+        _rb.velocity = new Vector3(0, 0, 0);
+        _rb.angularVelocity = new Vector3(0, 0, 0);
 
         GameManager.Instance.GridManager.UpdateVisibleTiles();
+        GameManager.Instance.TurnManager.PlayerRobotPerformedActionCallback(this);
     }
 
     #endregion
@@ -193,7 +182,7 @@ public class PlayerController : MonoBehaviour
 
     public void InitWeapons()
     {
-        _weaponsVisionCone = new List<GameObject>();
+        Weapons = new List<GameObject>();
         _weaponsTarget = new List<Tile>();
         _currentWeaponSelected = 0;
 
@@ -201,7 +190,7 @@ public class PlayerController : MonoBehaviour
         {
             GameObject weapon = Instantiate(_weaponVisionConePrefab, transform.position + new Vector3(0, -0.48f, 0), Quaternion.identity, transform);
             weapon.transform.localScale = new Vector3((float)(weaponStat._range + 0.5f) / 1.5f, (float)(weaponStat._range + 0.5f) / 1.5f, (float)(weaponStat._range + 0.5f) / 1.5f);
-            _weaponsVisionCone.Add(weapon);
+            Weapons.Add(weapon);
             _weaponsTarget.Add(GameManager.Instance.GridManager.GetTile(_currentTile._location.x + 1, _currentTile._location.y));
         }
     }
@@ -229,13 +218,12 @@ public class PlayerController : MonoBehaviour
         _weaponVisionConeGrey.transform.rotation = newRotationQUAT;
     }
 
-    public void UpdateWeaponTarget(Tile target)
+    public void UpdateWeaponTarget(Tile target, int weaponId)
     {
-        if (_weaponsVisionCone[_currentWeaponSelected] == null)
+        if (Weapons[weaponId] == null)
             return;
 
-        Vector3 oldRotation = _weaponsVisionCone[_currentWeaponSelected].transform.rotation.eulerAngles;
-        //Debug.Log("angle : " + GameManager.Instance.GridManager.GetTileAngle(_currentTile._location, target._location));
+        Vector3 oldRotation = Weapons[weaponId].transform.rotation.eulerAngles;
         //Debug.Log("angle : " + GameManager.Instance.GridManager.GetTileAngle(_currentTile._location, target._location));
 
         Vector2Int currentLocation;
@@ -247,7 +235,7 @@ public class PlayerController : MonoBehaviour
         Vector3 newRotationV3 = new Vector3(oldRotation.x, GameManager.Instance.GridManager.GetTileAngle(currentLocation, target._location), oldRotation.z);
         Quaternion newRotationQUAT = new Quaternion();
         newRotationQUAT.eulerAngles = newRotationV3;
-        _weaponsVisionCone[_currentWeaponSelected].transform.rotation = newRotationQUAT;
+        Weapons[weaponId].transform.rotation = newRotationQUAT;
 
         GameManager.Instance.GridManager.DeactivateMovementCellSprite();
         GameManager.Instance.GridManager.DeactivateAttackCellSprite();
@@ -267,30 +255,36 @@ public class PlayerController : MonoBehaviour
             currentLocation = GameManager.Instance.TurnManager.CurrentGhost.CurrentTile._location;
 
         int counter = 0;
-        foreach (GameObject weapon in _weaponsVisionCone)
+        foreach (GameObject weapon in Weapons)
         {
             Vector3 oldRotation = transform.rotation.eulerAngles;
             Vector3 newRotationV3 = new Vector3(oldRotation.x, GameManager.Instance.GridManager.GetTileAngle(currentLocation, _weaponsTarget[counter]._location), oldRotation.z);
             Quaternion newRotationQUAT = new Quaternion();
             newRotationQUAT.eulerAngles = newRotationV3;
-            _weaponsVisionCone[_currentWeaponSelected].transform.rotation = newRotationQUAT;
+            Weapons[_currentWeaponSelected].transform.rotation = newRotationQUAT;
             counter++;
         }
     }
 
     public void SetWeaponAim(Tile aimedTile, int weaponId)
     {
-        float angle = GameManager.Instance.GridManager.GetTileAngle(_currentTile._location, aimedTile._location);
-        _weaponsVisionCone[weaponId].transform.Rotate(Vector3.up, angle);
+        Vector3 oldRotation = Weapons[weaponId].transform.rotation.eulerAngles;
 
-        GameManager.Instance.TurnManager.PerformNextAIAction();
+        Vector2Int currentLocation = _currentTile._location;
+
+        Vector3 newRotationV3 = new Vector3(oldRotation.x, GameManager.Instance.GridManager.GetTileAngle(currentLocation, aimedTile._location), oldRotation.z);
+        Quaternion newRotationQUAT = new Quaternion();
+        newRotationQUAT.eulerAngles = newRotationV3;
+        Weapons[weaponId].transform.rotation = newRotationQUAT;
+
+        GameManager.Instance.TurnManager.PlayerRobotPerformedActionCallback(this);
     }
 
     public void AttackIfPossible(int weaponId)
     {
         //perform attack
 
-        GameManager.Instance.TurnManager.PerformNextAIAction();
+        GameManager.Instance.TurnManager.PlayerRobotPerformedActionCallback(this);
     }
 
     #endregion

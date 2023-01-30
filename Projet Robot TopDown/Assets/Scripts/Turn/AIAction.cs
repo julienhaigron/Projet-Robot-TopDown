@@ -9,7 +9,7 @@ public abstract class AIAction
 
     public void EndPerform()
     {
-        GameManager.Instance.TurnManager.PerformNextAIAction();
+        //GameManager.Instance.TurnManager.PerformNextRobotsAIAction();
     }
 
 }

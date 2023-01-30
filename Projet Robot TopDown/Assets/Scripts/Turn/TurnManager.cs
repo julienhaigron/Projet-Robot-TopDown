@@ -1,17 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class TurnManager : MonoBehaviour
 {
     public GameObject _ghostPrefab;
     private GhostController _currentGhost;
     public GhostController CurrentGhost { get => _currentGhost; set => _currentGhost = value; }
-    private Queue<AIAction> _AIActions = new Queue<AIAction>();
+    private List<Tuple<PlayerController, Queue<AIAction>>> _playerRobotsActions;
+    private List<bool> _playerRobotsActionsFullyFinished;
+    private List<bool> _playerRobotsActionFinished;
+
+    private List<Tuple<EnemyController, Queue<AIAction>>> _enemyRobotsActions;
+    private List<bool> _enemyRobotsActionsFullyFinished;
+    private List<bool> _enemyRobotsActionFinished;
 
     public List<PlayerController> Players;
     private PlayerController _currentSelectedPlayer;
     public PlayerController CurrentSelectedPlayer { get => _currentSelectedPlayer; set => _currentSelectedPlayer = value; }
+
+    public List<EnemyController> Enemys;
 
     private List<Tile> _currentPath;
     public List<Tile> CurrentPath { get => _currentPath; set => _currentPath = value; }
@@ -21,40 +30,113 @@ public class TurnManager : MonoBehaviour
     public enum TurnState
     {
         RecordingPlayerActions,
-        PerformingPlayerActions,
-        PerformingEnemyActions
+        PerformingAllRobotsActions,
     }
 
-    public void AddAIActionToQueue(AIAction action)
+    public void Init()
     {
-        _AIActions.Enqueue(action);
+        //init players action queue
+        _playerRobotsActions = new List<Tuple<PlayerController, Queue<AIAction>>>();
+        _playerRobotsActionFinished = new List<bool>();
+        _playerRobotsActionsFullyFinished = new List<bool>();
+
+        foreach (PlayerController playerRobot in Players)
+        {
+            _playerRobotsActions.Add(new Tuple<PlayerController, Queue<AIAction>>(playerRobot, new Queue<AIAction>()));
+            _playerRobotsActionFinished.Add(false);
+            _playerRobotsActionsFullyFinished.Add(false);
+        }
+
+        //init enemys action queue
+        _enemyRobotsActions = new List<Tuple<EnemyController, Queue<AIAction>>>();
+        _enemyRobotsActionFinished = new List<bool>();
+        _enemyRobotsActionsFullyFinished = new List<bool>();
+
+        foreach (EnemyController enemyRobot in Enemys)
+        {
+            _enemyRobotsActions.Add(new Tuple<EnemyController, Queue<AIAction>>(enemyRobot, new Queue<AIAction>()));
+            _enemyRobotsActionFinished.Add(false);
+            _enemyRobotsActionsFullyFinished.Add(false);
+        }
+    }
+
+    public void AddPlayerAIActionToQueue(PlayerController robot, AIAction action)
+    {
+        Tuple<PlayerController, Queue<AIAction>> robotsActionQueue = null;
+        for (int i = 0; i < _playerRobotsActions.Count; i++)
+        {
+            if (_playerRobotsActions[i].Item1 == robot)
+                robotsActionQueue = _playerRobotsActions[i];
+        }
+
+        if (robotsActionQueue == null)
+        {
+            Debug.LogError("didnt find robot in playersRobotsActions tuple list");
+            return;
+        }
+
+        robotsActionQueue.Item2.Enqueue(action);
 
         //pay action cost
-        Debug.Log("action cost : " + action._cost);
+        //Debug.Log("action cost : " + action._cost);
         CurrentSelectedPlayer.CurrentActionPoints -= action._cost;
         CurrentSelectedPlayer._actionPointText.SetText(CurrentSelectedPlayer.CurrentActionPoints.ToString());
 
         //start perform player turn if all action used
         if (CurrentSelectedPlayer.CurrentActionPoints <= 0)
-            StartPerformAIActions();
+            StartPerformobotsAIActions();
     }
 
-    public void StartPerformAIActions()
+    public void AddEnemyAIActionToQueue(EnemyController robot, AIAction action)
     {
-        if (_currentTurnState != TurnState.PerformingPlayerActions)
+        Tuple<EnemyController, Queue<AIAction>> robotsActionQueue = null;
+        for (int i = 0; i < _enemyRobotsActions.Count; i++)
+        {
+            if (_enemyRobotsActions[i].Item1 == robot)
+                robotsActionQueue = _enemyRobotsActions[i];
+        }
+
+        if (robotsActionQueue == null)
+        {
+            Debug.LogError("didnt find robot in playersRobotsActions tuple list");
+            return;
+        }
+
+        robotsActionQueue.Item2.Enqueue(action);
+
+        //pay action cost
+        //Debug.Log("action cost : " + action._cost);
+        CurrentSelectedPlayer.CurrentActionPoints -= action._cost;
+        CurrentSelectedPlayer._actionPointText.SetText(CurrentSelectedPlayer.CurrentActionPoints.ToString());
+    }
+
+    public void StartPerformobotsAIActions()
+    {
+        if (_currentTurnState != TurnState.PerformingAllRobotsActions)
         {
             //depop ghost
-            if (_currentGhost != null)
-                _currentGhost.DepopGhost();
+            if (CurrentGhost != null)
+                CurrentGhost.DepopGhost();
 
             _currentSelectedPlayer.DeactivateGhost();
             _currentSelectedPlayer.CurrentSelectionState = PlayerController.RobotSelectionState.Unselected;
             GameManager.Instance.GridManager.DeactivateMovementCellSprite();
 
-            _currentTurnState = TurnState.PerformingPlayerActions;
-            AIAction firstAction = _AIActions.Dequeue();
+            _currentTurnState = TurnState.PerformingAllRobotsActions;
 
-            firstAction.Perform();
+            //start perform all players robots first actions
+            for (int i = 0; i < _playerRobotsActions.Count; i++)
+            {
+                AIAction firstAction = _playerRobotsActions[i].Item2.Dequeue();
+                firstAction.Perform();
+            }
+
+            //start perform all enemy robots first actions
+            for (int i = 0; i < _enemyRobotsActions.Count; i++)
+            {
+                AIAction firstAction = _enemyRobotsActions[i].Item2.Dequeue();
+                firstAction.Perform();
+            }
         }
         else
         {
@@ -62,18 +144,133 @@ public class TurnManager : MonoBehaviour
         }
     }
 
-    public void PerformNextAIAction()
+    public void PlayerRobotPerformedActionCallback(PlayerController robot)
     {
-        if (_AIActions.Count > 0)
+        //
+        for (int i = 0; i < _playerRobotsActions.Count; i++)
         {
-            AIAction action = _AIActions.Dequeue();
-            action.Perform();
+            if (_playerRobotsActions[i].Item1 == robot)
+                _playerRobotsActionFinished[i] = true;
         }
-        else
+
+        //check if all robots endend performing their actions
+        bool allPlayerActionPerformed = true;
+        for (int i = 0; i < _playerRobotsActionFinished.Count; i++)
         {
-            //no more actions
+            if(_playerRobotsActionFinished[i] == false)
+                allPlayerActionPerformed = false;
+        }
+
+        //check if all robots endend performing their actions
+        bool allEnemyActionPerformed = true;
+        for (int i = 0; i < _enemyRobotsActionFinished.Count; i++)
+        {
+            if (_enemyRobotsActionFinished[i] == false)
+                allEnemyActionPerformed = false;
+        }
+
+        if (allPlayerActionPerformed && allEnemyActionPerformed)
+            PerformNextRobotsAIAction();
+    }
+
+    public void EnemyRobotPerformedActionCallback(EnemyController robot)
+    {
+        //
+        for (int i = 0; i < _enemyRobotsActions.Count; i++)
+        {
+            if (_enemyRobotsActions[i].Item1 == robot)
+                _enemyRobotsActionFinished[i] = true;
+        }
+
+        //check if all robots endend performing their actions
+        bool allPlayerActionPerformed = true;
+        for (int i = 0; i < _playerRobotsActionFinished.Count; i++)
+        {
+            if (_playerRobotsActionFinished[i] == false)
+                allPlayerActionPerformed = false;
+        }
+
+        //check if all robots endend performing their actions
+        bool allEnemyActionPerformed = true;
+        for (int i = 0; i < _enemyRobotsActionFinished.Count; i++)
+        {
+            if (_enemyRobotsActionFinished[i] == false)
+                allEnemyActionPerformed = false;
+        }
+
+        if (allPlayerActionPerformed && allEnemyActionPerformed)
+        {
+            //cleanup
+            for( int i = 0; i< _playerRobotsActionFinished.Count; i++)
+            {
+                _playerRobotsActionFinished[i] = false;
+            }
+            for (int i = 0; i < _enemyRobotsActionFinished.Count; i++)
+            {
+                _enemyRobotsActionFinished[i] = false;
+            }
+
+            //next action
+            PerformNextRobotsAIAction();
+        }
+    }
+
+    public void PerformNextRobotsAIAction()
+    {
+        for (int i = 0; i < _playerRobotsActions.Count; i++)
+        {
+            if (_playerRobotsActions[i].Item2.Count > 0)
+            {
+                AIAction action = _playerRobotsActions[i].Item2.Dequeue();
+                action.Perform();
+            }
+            else
+            {
+                _playerRobotsActionsFullyFinished[i] = true;
+            }
+        }
+        for (int i = 0; i < _enemyRobotsActions.Count; i++)
+        {
+            if (_enemyRobotsActions[i].Item2.Count > 0)
+            {
+                AIAction action = _enemyRobotsActions[i].Item2.Dequeue();
+                action.Perform();
+            }
+            else
+            {
+                _enemyRobotsActionsFullyFinished[i] = true;
+            }
+        }
+
+        //check if all actions perfomed
+        bool allPlayerRobotsFiniedActions = true;
+        for (int i = 0; i < _playerRobotsActionsFullyFinished.Count; i++)
+        {
+            if (_playerRobotsActionsFullyFinished[i] == false)
+                allPlayerRobotsFiniedActions = false;
+        }
+        bool allEnemyRobotsFiniedActions = true;
+        for (int i = 0; i < _enemyRobotsActionsFullyFinished.Count; i++)
+        {
+            if (_enemyRobotsActionsFullyFinished[i] == false)
+                allEnemyRobotsFiniedActions = false;
+        }
+
+        if (allPlayerRobotsFiniedActions && allEnemyRobotsFiniedActions)
+        {
+            //cleanup
+            for (int i = 0; i < _playerRobotsActionsFullyFinished.Count; i++)
+            {
+                _playerRobotsActionsFullyFinished[i] = false;
+                Players[i].NewTurn();
+            }
+            for (int i = 0; i < _enemyRobotsActionsFullyFinished.Count; i++)
+            {
+                _enemyRobotsActionsFullyFinished[i] = false;
+            }
+
+            //no more actions. back to action selection state
             _currentTurnState = TurnState.RecordingPlayerActions;
-            Debug.Log("player turn fully performed");
             GameManager.Instance.GridManager.DeactivateMovementCellSprite();
             GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentSelectionState = PlayerController.RobotSelectionState.Unselected;
         }
@@ -81,20 +278,25 @@ public class TurnManager : MonoBehaviour
 
     #region Actions
 
-    public void AddMovementAction(Tile destination)
+    public void AddMovementAction(PlayerController robot, Tile destination)
     {
         GameManager.Instance.GridManager.DeactivateMovementCellSprite();
 
-        //add action to queue
-        MoveAction moveAction = new MoveAction(GameManager.Instance.TurnManager._currentPath, CurrentSelectedPlayer);
-        AddAIActionToQueue(moveAction);
-
-        if (_currentGhost == null)
+        if (CurrentGhost == null)
             PopGhost(destination);
         else
         {
             //move ghost to destination
-            _currentGhost.transform.position = destination.transform.position + new Vector3(0, 1 / 2f, 0);
+            CurrentGhost.transform.position = destination.transform.position + new Vector3(0, 1 / 2f, 0);
+        }
+
+        foreach (Tile tile in GameManager.Instance.TurnManager._currentPath)
+        {
+            if (tile != null)
+            {
+                MoveAction moveAction = new MoveAction(tile, CurrentSelectedPlayer);
+                AddPlayerAIActionToQueue(robot, moveAction);
+            }
         }
     }
 
@@ -105,11 +307,10 @@ public class TurnManager : MonoBehaviour
         Vector3 position = ghostTile.transform.position + new Vector3(0, 1 / 2f, 0);
         GameObject currentGhostGO = Instantiate(_ghostPrefab, position, Quaternion.identity);
 
-        GhostController ghostController = currentGhostGO.GetComponent<GhostController>();
-        ghostController._connectedPlayer = CurrentSelectedPlayer;
-        ghostController.CurrentTile = ghostTile;
-        ghostController.InitWeapons();
-        _currentGhost = ghostController;
+        CurrentGhost = currentGhostGO.GetComponent<GhostController>();
+        CurrentGhost._connectedPlayer = CurrentSelectedPlayer;
+        CurrentGhost.CurrentTile = ghostTile;
+        CurrentGhost.InitWeapons();
     }
 
     public void AddAttackIfPossibleAction(PlayerController robot, int weaponId)
@@ -120,7 +321,7 @@ public class TurnManager : MonoBehaviour
         GameManager.Instance.TurnManager.CurrentSelectedPlayer.InitWeapons();
 
         AttackIfPossibleAction action = new AttackIfPossibleAction(robot, weaponId);
-        AddAIActionToQueue(action);
+        AddPlayerAIActionToQueue(robot, action);
     }
 
     public void AddRotateWeaponAction(Tile aimedTile, PlayerController robot, int weaponId)
@@ -133,7 +334,7 @@ public class TurnManager : MonoBehaviour
         //GameManager.Instance.TurnManager.CurrentSelectedPlayer.InitWeapons();
 
         RotateWeaponAction action = new RotateWeaponAction(aimedTile, robot, weaponId);
-        AddAIActionToQueue(action);
+        AddPlayerAIActionToQueue(robot, action);
     }
 
     #endregion

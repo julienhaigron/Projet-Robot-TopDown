@@ -4,23 +4,23 @@ using UnityEngine;
 
 public class MoveAction : AIAction
 {
-    public List<Tile> _movementPath;
+    public Tile _nextTile;
     public PlayerController _playerRobot;
     public EnemyController _enemyRobot;
     
-    public MoveAction(List<Tile> movemntPath, PlayerController robot)
+    public MoveAction(Tile nextTile, PlayerController robot)
     {
-        _movementPath = movemntPath;
+        _nextTile = nextTile;
         _playerRobot = robot;
-        _cost = _movementPath.Count-1;
+        _cost = 1;
     }
 
 
-    public MoveAction(List<Tile> movemntPath, EnemyController robot)
+    public MoveAction(Tile nextTile, EnemyController robot)
     {
-        _movementPath = movemntPath;
+        _nextTile = nextTile;
         _enemyRobot = robot;
-        _cost = _movementPath.Count - 1;
+        _cost = 1;
     }
 
     public override void Perform()
@@ -31,8 +31,8 @@ public class MoveAction : AIAction
     public void SendPathToRobot()
     {
         if (_playerRobot != null)
-            _playerRobot.SetPath(_movementPath);
+            _playerRobot.SetDestination(_nextTile);
         else
-            _enemyRobot.SetPath(_movementPath);
+            _enemyRobot.SetDestination(_nextTile);
     }
 }
