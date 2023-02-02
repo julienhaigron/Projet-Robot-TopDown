@@ -29,9 +29,9 @@ public class HUD : MonoBehaviour
         GameManager.Instance.GridManager.DeactivateDeadAttackCellSprite();
 
         if (GameManager.Instance.TurnManager.CurrentGhost == null)
-            GameManager.Instance.GridManager.ActivateMovementCell(GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentTile._location, GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentActionPoints);
+            GameManager.Instance.GridManager.ActivateMovementCell(GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentTile._location, GameManager.Instance.TurnManager.CurrentSelectedPlayer.RemainingActionPoints);
         else
-            GameManager.Instance.GridManager.ActivateMovementCell(GameManager.Instance.TurnManager.CurrentGhost.CurrentTile._location, GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentActionPoints);
+            GameManager.Instance.GridManager.ActivateMovementCell(GameManager.Instance.TurnManager.CurrentGhost.CurrentTile._location, GameManager.Instance.TurnManager.CurrentSelectedPlayer.RemainingActionPoints);
     }
 
     public void TurnWeaponButton()

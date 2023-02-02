@@ -11,6 +11,7 @@ public class Pathfinding : MonoBehaviour
     public List<Tile> Frontier(Vector2Int source, int limit)
     {
         List<Tile> frontierTile = new List<Tile>();
+        Tile tileSource = GameManager.Instance.GridManager.GetTile(source.x, source.y);
 
         for (int i = 0; i < GameManager.Instance.GridManager._width; i++)
         {
@@ -18,11 +19,14 @@ public class Pathfinding : MonoBehaviour
             {
                 Tile tile = GameManager.Instance.GridManager.GetTile(i, j);
 
-                if (Vector2Int.Distance(source, tile._location) <= limit)
+                List<Tile> pathToThisTile = FindPath(tileSource, tile);
+
+                if (pathToThisTile != null && pathToThisTile.Count <= limit)
+                //if (Vector2Int.Distance(source, tile._location) <= limit)
                 {
                     //activate movement cell
                     //tile._movementSprite.SetActive(true);
-                    tile._parentNode = null;
+                    //tile._parentNode = null;
                     frontierTile.Add(tile);
                 }
             }
@@ -33,13 +37,12 @@ public class Pathfinding : MonoBehaviour
 
     public List<Tile> VisibleTiles(Tile source, int maxViewDistance)
     {
-        List<Tile> visibleTiles = new List<Tile>();
+        List<Tile> visibleTiles = Frontier(source._location, maxViewDistance);
 
-        visibleTiles = Frontier(source._location, maxViewDistance);
         foreach (Tile tile in visibleTiles)
         {
             List<Tile> lineToThisTile = Line(source, tile);
-            bool isVisible = true;
+            //bool isVisible = true;
             foreach (Tile tileInLine in lineToThisTile)
             {
                 if (!tileInLine._isWalkable)

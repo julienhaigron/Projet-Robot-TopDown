@@ -241,6 +241,11 @@ public class GridManager : MonoBehaviour
         _visibleTiles = newVisibleTiles;
     }
 
+    public void ActivateMovementCell(PlayerController robot)
+    {
+        ActivateMovementCell(robot.CurrentTile._location, robot.RemainingActionPoints);
+    }
+
     public void ActivateMovementCell(Vector2Int source, int speed)
     {
         _activeMovmentTile = new List<Tile>();

@@ -31,7 +31,7 @@ public class GhostController : MonoBehaviour
             case PlayerController.RobotSelectionState.Unselected:
                 //Debug.Log("activate movment sprite");
                 GameManager.Instance.TurnManager.CurrentSelectedPlayer = _connectedPlayer;
-                GameManager.Instance.GridManager.ActivateMovementCell(_currentTile._location, _connectedPlayer.CurrentActionPoints);
+                GameManager.Instance.GridManager.ActivateMovementCell(_currentTile._location, _connectedPlayer.RemainingActionPoints);
                 _currentSelectionState = PlayerController.RobotSelectionState.Selected;
                 break;
             case PlayerController.RobotSelectionState.Selected:

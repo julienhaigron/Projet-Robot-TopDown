@@ -51,6 +51,11 @@ MonoBehaviour:
   _gridManager: {fileID: -2597926068332912236}
   _pathfinding: {fileID: 6954902052370451571}
   _turnManager: {fileID: 2430328572931153960}
+  _hud: {fileID: 0}
+  _robotPrefab: {fileID: 7283362376283455192, guid: c5a07b9a69391594a9aa5090e74ad7c7,
+    type: 3}
+  PlayerRobots: []
+  PlayerRobotsSpawn: []
 --- !u!114 &-2597926068332912236
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -69,6 +74,8 @@ MonoBehaviour:
   _gridTilePrefab: {fileID: 703476587950422197, guid: 869834114ec8ed342870c274121a4a5a,
     type: 3}
   _gridTilePrefabParent: {fileID: 4818164549332294767}
+  _activeAttackTile: []
+  _activeDeadAttackTile: []
 --- !u!114 &6954902052370451571
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -93,6 +100,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f7301d0665025b49957e4f2de61516a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _ghostPrefab: {fileID: 0}
+  Players: []
+  Enemys: []
 --- !u!1 &4818164549332294767
 GameObject:
   m_ObjectHideFlags: 0

@@ -8,8 +8,8 @@ public class PlayerController : MonoBehaviour
     public RobotStats _robotStats;
 
     //actions
-    private int _currentActionPoints;
-    public int CurrentActionPoints { get => _currentActionPoints; set => _currentActionPoints = value; }
+    private int _remainingActionPoints;
+    public int RemainingActionPoints { get => _remainingActionPoints; set => _remainingActionPoints = value; }
     private Tile _currentTile;
     public Tile CurrentTile { get => _currentTile; set => _currentTile = value; }
 
@@ -28,7 +28,6 @@ public class PlayerController : MonoBehaviour
     public List<Tile> _weaponsTarget;
 
     //ref
-    public GameManager _gameManager;
     public Rigidbody _rb;
     public BoxCollider _bc;
     public GameObject _ui;
@@ -54,22 +53,22 @@ public class PlayerController : MonoBehaviour
     private RobotActions _currentRobotAction;
     public RobotActions CurrentRobotAction { get => _currentRobotAction; set => _currentRobotAction = value; }
 
-    void Start()
+    public void Init(Tile spawn)
     {
-        //_gridManager = GridManager.Instance;
-        _currentSelectionState = RobotSelectionState.Unselected;
+        _currentTile = spawn;
 
-        NewTurn();
-        _isMoving = false;
+        NewTurn(); //reset stats
 
-        //debug
-        _gameManager.GridManager.LoadGridInScene();
-        _currentTile = _gameManager.GridManager.GetTile(8, 8);
-        GameManager.Instance.GridManager.ActivateMovementCell(CurrentTile._location, CurrentActionPoints);
-
+        GameManager.Instance.GridManager.LoadGridInScene();
         GameManager.Instance.GridManager.UpdateVisibleTiles();
 
         InitWeapons();
+    }
+
+    private void Start()
+    {
+        _isMoving = false;
+        _currentSelectionState = RobotSelectionState.Unselected;
     }
 
     private void Update()
@@ -82,8 +81,8 @@ public class PlayerController : MonoBehaviour
 
     public void NewTurn()
     {
-        _currentActionPoints = _robotStats._actionPointsPerTurn;
-        _actionPointText.SetText(_currentActionPoints.ToString());
+        _remainingActionPoints = _robotStats._actionPointsPerTurn;
+        _actionPointText.SetText(_remainingActionPoints.ToString());
         _currentRobotAction = RobotActions.Move;
     }
 
@@ -121,15 +120,15 @@ public class PlayerController : MonoBehaviour
         switch (_currentSelectionState)
         {
             case RobotSelectionState.Unselected:
-                _gameManager.GridManager.ActivateMovementCell(_currentTile._location, _currentActionPoints);
-                _gameManager.TurnManager.CurrentSelectedPlayer = this;
+                GameManager.Instance.GridManager.ActivateMovementCell(_currentTile._location, _remainingActionPoints);
+                GameManager.Instance.TurnManager.CurrentSelectedPlayer = this;
                 _currentSelectionState = RobotSelectionState.Selected;
                 GameManager.Instance.HUD.DisplayActionsButtons();
                 break;
             case RobotSelectionState.Selected:
-                _gameManager.GridManager.DeactivateMovementCellSprite();
+                GameManager.Instance.GridManager.DeactivateMovementCellSprite();
                 _currentSelectionState = RobotSelectionState.Unselected;
-                _gameManager.TurnManager.CurrentSelectedPlayer = null;
+                GameManager.Instance.TurnManager.CurrentSelectedPlayer = null;
                 GameManager.Instance.HUD.HideActionsButtons();
                 break;
         }

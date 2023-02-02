@@ -9,8 +9,8 @@ public class TurnManager : MonoBehaviour
     private GhostController _currentGhost;
     public GhostController CurrentGhost { get => _currentGhost; set => _currentGhost = value; }
     private List<Tuple<PlayerController, Queue<AIAction>>> _playerRobotsActions;
-    private List<bool> _playerRobotsActionsFullyFinished;
-    private List<bool> _playerRobotsActionFinished;
+    private List<bool> _playerRobotsActionsFullyFinished; //entier turn completion state
+    private List<bool> _playerRobotsActionFinished; //current action in turn
 
     private List<Tuple<EnemyController, Queue<AIAction>>> _enemyRobotsActions;
     private List<bool> _enemyRobotsActionsFullyFinished;
@@ -79,12 +79,22 @@ public class TurnManager : MonoBehaviour
 
         //pay action cost
         //Debug.Log("action cost : " + action._cost);
-        CurrentSelectedPlayer.CurrentActionPoints -= action._cost;
-        CurrentSelectedPlayer._actionPointText.SetText(CurrentSelectedPlayer.CurrentActionPoints.ToString());
+        CurrentSelectedPlayer.RemainingActionPoints -= action._cost;
+        CurrentSelectedPlayer._actionPointText.SetText(CurrentSelectedPlayer.RemainingActionPoints.ToString());
 
         //start perform player turn if all action used
-        if (CurrentSelectedPlayer.CurrentActionPoints <= 0)
-            StartPerformobotsAIActions();
+        if (CurrentSelectedPlayer.RemainingActionPoints <= 0)
+        {
+            bool allPlayersTurnActionDefined = true;
+            for (int i = 0; i < Players.Count; i++)
+            {
+                if (Players[i].RemainingActionPoints > 0)
+                    allPlayersTurnActionDefined = false;
+            }
+
+            if(allPlayersTurnActionDefined)
+                StartPerformRobotsAIActions();
+        }
     }
 
     public void AddEnemyAIActionToQueue(EnemyController robot, AIAction action)
@@ -106,11 +116,11 @@ public class TurnManager : MonoBehaviour
 
         //pay action cost
         //Debug.Log("action cost : " + action._cost);
-        CurrentSelectedPlayer.CurrentActionPoints -= action._cost;
-        CurrentSelectedPlayer._actionPointText.SetText(CurrentSelectedPlayer.CurrentActionPoints.ToString());
+        CurrentSelectedPlayer.RemainingActionPoints -= action._cost;
+        CurrentSelectedPlayer._actionPointText.SetText(CurrentSelectedPlayer.RemainingActionPoints.ToString());
     }
 
-    public void StartPerformobotsAIActions()
+    public void StartPerformRobotsAIActions()
     {
         if (_currentTurnState != TurnState.PerformingAllRobotsActions)
         {
