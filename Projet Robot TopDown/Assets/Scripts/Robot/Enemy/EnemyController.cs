@@ -68,7 +68,7 @@ public class EnemyController : MonoBehaviour
     {
         //evaluate if need to change AI behavior
         //search players around robot
-        List<Tile> visibleTiles = GameManager.Instance.Pathfinding.Frontier(_currentTile._location, _robotStats._viewDistance);
+        List<Tile> visibleTiles = GameManager.Instance.Pathfinding.VisibleTiles(_currentTile, _robotStats._viewDistance);
         List<PlayerController> players = GameManager.Instance.TurnManager.Players;
 
         List<PlayerController> playersInRange = GameManager.Instance.TurnManager.Players;
@@ -121,7 +121,7 @@ public class EnemyController : MonoBehaviour
     {
         //evaluate if need to change AI behavior
         //search players around robot
-        List<Tile> visibleTiles = GameManager.Instance.Pathfinding.Frontier(_currentTile._location, _robotStats._viewDistance);
+        List<Tile> visibleTiles = GameManager.Instance.Pathfinding.VisibleTiles(_currentTile, _robotStats._viewDistance);
         List<PlayerController> players = GameManager.Instance.TurnManager.Players;
 
         List<PlayerController> playersInRange = GameManager.Instance.TurnManager.Players;

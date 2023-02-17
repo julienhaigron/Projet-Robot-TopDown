@@ -8,36 +8,90 @@ public class Pathfinding : MonoBehaviour
     public PriorityQueue closedList;
     public PriorityQueue openList;
 
-    public List<Tile> Frontier(Vector2Int source, int limit)
+    // Direction vectors
+    static int[] dRow = { -1, 0, 1, 0 };
+    static int[] dCol = { 0, 1, 0, -1 };
+
+    // Function to check if a cell
+    // is be visited or not
+    private bool isValid(bool[,] vis, int row, int col)
     {
-        List<Tile> frontierTile = new List<Tile>();
-        Tile tileSource = GameManager.Instance.GridManager.GetTile(source.x, source.y);
+        // If cell lies out of bounds
+        if (row < 0 || col < 0 || row >= GameManager.Instance.GridManager._height || col >= GameManager.Instance.GridManager._width)
+            return false;
 
-        for (int i = 0; i < GameManager.Instance.GridManager._width; i++)
+        // If cell is already visited
+        if (vis[row, col])
+            return false;
+
+        // Otherwise
+        return true;
+    }
+
+    public List<Tile> BFS(Vector2Int source)
+    {
+        // Stores indices of the matrix cells
+        Queue<Tile> q = new Queue<Tile>();
+
+        bool[,] visited = new bool[GameManager.Instance.GridManager._height, GameManager.Instance.GridManager._width];
+        List<Tile> frontier = new List<Tile>();
+
+        // Mark the starting cell as visited
+        // and push it into the queue
+        q.Enqueue(GameManager.Instance.GridManager.GetTile(source.x, source.y));
+        visited[source.x, source.y] = true;
+
+        // Iterate while the queue
+        // is not empty
+        while (q.Count != 0)
         {
-            for (int j = 0; j < GameManager.Instance.GridManager._height; j++)
+            Tile tile = q.Peek();
+            int x = tile._location.x;
+            int y = tile._location.y;
+            q.Dequeue();
+
+            List<Tile> neighbors = new List<Tile>();
+            neighbors = GameManager.Instance.GridManager.GetNeighbors(tile);
+
+            // Go to the adjacent cells
+            for (int i = 0; i < 4; i++)
             {
-                Tile tile = GameManager.Instance.GridManager.GetTile(i, j);
-
-                List<Tile> pathToThisTile = FindPath(tileSource, tile);
-
-                if (pathToThisTile != null && pathToThisTile.Count <= limit)
-                //if (Vector2Int.Distance(source, tile._location) <= limit)
+                int adjx = x + dRow[i];
+                int adjy = y + dCol[i];
+                if (isValid(visited, adjx, adjy))
                 {
-                    //activate movement cell
-                    //tile._movementSprite.SetActive(true);
-                    //tile._parentNode = null;
-                    frontierTile.Add(tile);
+                    Tile neigbhor = GameManager.Instance.GridManager.GetTile(adjx, adjy);
+                    q.Enqueue(neigbhor);
+                    frontier.Add(neigbhor);
+                    visited[adjx, adjy] = true;
                 }
             }
         }
 
-        return frontierTile;
+        return frontier;
+    }
+
+    public List<Tile> TilesInRange(Tile source, int range)
+    {
+        List<Tile> frontier = BFS(source._location);
+        List<Tile> tilesInRange = new List<Tile>();
+
+        foreach(Tile tile in frontier)
+        {
+            List<Tile> pathToThisTile = FindPath(source, tile);
+
+            if(pathToThisTile != null && pathToThisTile.Count <= range)
+            {
+                tilesInRange.Add(tile);
+            }
+        }
+
+        return tilesInRange;
     }
 
     public List<Tile> VisibleTiles(Tile source, int maxViewDistance)
     {
-        List<Tile> visibleTiles = Frontier(source._location, maxViewDistance);
+        List<Tile> visibleTiles = TilesInRange(source, maxViewDistance);
 
         foreach (Tile tile in visibleTiles)
         {

@@ -164,34 +164,6 @@ public class GridManager : MonoBehaviour
         if (leftNeibhbor != null)
             neighbors.Add(leftNeibhbor);
 
-        /*//Up Left
-        leftNodeRow = row + 1;
-        leftNodeColumn = column - 1;
-        leftNeibhbor = AssignNeighbor(leftNodeRow, leftNodeColumn);
-        if (leftNeibhbor != null)
-            neighbors.Add(leftNeibhbor);
-
-        //Up Right
-        leftNodeRow = row + 1;
-        leftNodeColumn = column + 1;
-        leftNeibhbor = AssignNeighbor(leftNodeRow, leftNodeColumn);
-        if (leftNeibhbor != null)
-            neighbors.Add(leftNeibhbor);
-
-        //Down Left
-        leftNodeRow = row - 1;
-        leftNodeColumn = column - 1;
-        leftNeibhbor = AssignNeighbor(leftNodeRow, leftNodeColumn);
-        if (leftNeibhbor != null)
-            neighbors.Add(leftNeibhbor);
-
-        //Down Right
-        leftNodeRow = row - 1;
-        leftNodeColumn = column + 1;
-        leftNeibhbor = AssignNeighbor(leftNodeRow, leftNodeColumn);
-        if (leftNeibhbor != null)
-            neighbors.Add(leftNeibhbor);*/
-
         return neighbors;
     }
 
@@ -243,14 +215,14 @@ public class GridManager : MonoBehaviour
 
     public void ActivateMovementCell(PlayerController robot)
     {
-        ActivateMovementCell(robot.CurrentTile._location, robot.RemainingActionPoints);
+        ActivateMovementCell(robot.CurrentTile, robot.RemainingActionPoints);
     }
 
-    public void ActivateMovementCell(Vector2Int source, int speed)
+    public void ActivateMovementCell(Tile source, int speed)
     {
         _activeMovmentTile = new List<Tile>();
 
-        _activeMovmentTile = GameManager.Instance.Pathfinding.Frontier(source, speed);
+        _activeMovmentTile = GameManager.Instance.Pathfinding.TilesInRange(source, speed);
 
         foreach (Tile tile in _activeMovmentTile)
         {
@@ -296,7 +268,7 @@ public class GridManager : MonoBehaviour
         WeaponStats weapon = robot._robotStats._weapons[robot.CurrentWeaponSelected];
 
         //get tiles in cirle around weapon._range (frontier)
-        List<Tile> frontier = GameManager.Instance.Pathfinding.Frontier(origin._location, weapon._range);
+        List<Tile> frontier = GameManager.Instance.Pathfinding.VisibleTiles(origin, weapon._range);
 
         //check if tiles angle is in weaponConeAngleRange
         //if true then turn on tile's "attack" sprite in cone

@@ -120,7 +120,7 @@ public class PlayerController : MonoBehaviour
         switch (_currentSelectionState)
         {
             case RobotSelectionState.Unselected:
-                GameManager.Instance.GridManager.ActivateMovementCell(_currentTile._location, _remainingActionPoints);
+                GameManager.Instance.GridManager.ActivateMovementCell(_currentTile, _remainingActionPoints);
                 GameManager.Instance.TurnManager.CurrentSelectedPlayer = this;
                 _currentSelectionState = RobotSelectionState.Selected;
                 GameManager.Instance.HUD.DisplayActionsButtons();

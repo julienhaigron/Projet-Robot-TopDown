@@ -53,7 +53,7 @@ public class GameManager : MonoBehaviour
         //instantiate ally robot
         TurnManager.Players = new List<PlayerController>();
 
-        for (int i = 0; i< PlayerRobots.Count; i++)
+        for (int i = 0; i < PlayerRobots.Count; i++)
         {
             Vector3 playersPos = PlayerRobotsSpawn[i].transform.position + new Vector3(0, 1 / 2f, 0);
             GameObject playerGO = Instantiate(_robotPrefab, playersPos, Quaternion.identity, transform);
