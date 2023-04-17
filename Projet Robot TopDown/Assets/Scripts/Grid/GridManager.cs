@@ -13,17 +13,17 @@ public class GridManager : MonoBehaviour
     public GameObject _gridTilePrefab;
     public GameObject _gridTilePrefabParent;
     private Tile[,] _grid;
-    private List<Tile> _obstacleList;
+    private List<Tile> _obstacleList = new();
 
     //robot movment
-    private List<Tile> _activeMovmentTile;
+    private List<Tile> _activeMovmentTile = new();
 
     //robot attack
-    public List<Tile> _activeAttackTile;
-    public List<Tile> _activeDeadAttackTile;
+    public List<Tile> _activeAttackTile = new();
+    public List<Tile> _activeDeadAttackTile = new();
 
     //visible tiles
-    private List<Tile> _visibleTiles;
+    private List<Tile> _visibleTiles = new();
 
     #region Singleton
     private static GridManager instance = null;
@@ -39,11 +39,6 @@ public class GridManager : MonoBehaviour
         }
     }
     #endregion
-
-    private void Start()
-    {
-        _visibleTiles = new List<Tile>();
-    }
 
     [ContextMenu("CreateGrid")]
     public void CreateGrid()
@@ -189,8 +184,6 @@ public class GridManager : MonoBehaviour
 
     public void UpdateVisibleTiles()
     {
-        if (_visibleTiles == null)
-            _visibleTiles = new List<Tile>();
 
         foreach (Tile oldVisibleTile in _visibleTiles)
         {

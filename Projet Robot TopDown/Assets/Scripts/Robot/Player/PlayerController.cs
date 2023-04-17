@@ -60,7 +60,7 @@ public class PlayerController : MonoBehaviour
         NewTurn(); //reset stats
 
         GameManager.Instance.GridManager.LoadGridInScene();
-        GameManager.Instance.GridManager.UpdateVisibleTiles();
+        //GameManager.Instance.GridManager.UpdateVisibleTiles();
 
         InitWeapons();
     }

@@ -8,9 +8,9 @@ public class TurnManager : MonoBehaviour
     public GameObject _ghostPrefab;
     private GhostController _currentGhost;
     public GhostController CurrentGhost { get => _currentGhost; set => _currentGhost = value; }
-    private List<Tuple<PlayerController, Queue<AIAction>>> _playerRobotsActions;
-    private List<bool> _playerRobotsActionsFullyFinished; //entier turn completion state
-    private List<bool> _playerRobotsActionFinished; //current action in turn
+    private List<Tuple<PlayerController, Queue<AIAction>>> _playerRobotsActions = new();
+    private List<bool> _playerRobotsActionsFullyFinished = new(); //entier turn completion state
+    private List<bool> _playerRobotsActionFinished = new(); //current action in turn
 
     private List<Tuple<EnemyController, Queue<AIAction>>> _enemyRobotsActions;
     private List<bool> _enemyRobotsActionsFullyFinished;
@@ -36,9 +36,6 @@ public class TurnManager : MonoBehaviour
     public void Init()
     {
         //init players action queue
-        _playerRobotsActions = new List<Tuple<PlayerController, Queue<AIAction>>>();
-        _playerRobotsActionFinished = new List<bool>();
-        _playerRobotsActionsFullyFinished = new List<bool>();
 
         foreach (PlayerController playerRobot in Players)
         {
