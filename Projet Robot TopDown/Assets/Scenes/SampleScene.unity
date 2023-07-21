@@ -58213,7 +58213,7 @@ PrefabInstance:
     - target: {fileID: 2539090060316373303, guid: ccad5f00247b88941b9607dcb5c01138,
         type: 3}
       propertyPath: PlayerRobots.Array.size
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2539090060316373303, guid: ccad5f00247b88941b9607dcb5c01138,
         type: 3}
