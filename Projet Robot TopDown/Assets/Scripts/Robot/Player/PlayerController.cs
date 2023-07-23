@@ -94,7 +94,7 @@ public class PlayerController : MonoBehaviour
 
     public void ActivateChost()
     {
-        _currentSelectionState = PlayerController.RobotSelectionState.GhostActivated;
+        _currentSelectionState = RobotSelectionState.GhostActivated;
 
         foreach (GameObject cone in Weapons)
         {
@@ -104,7 +104,7 @@ public class PlayerController : MonoBehaviour
 
     public void DeactivateGhost()
     {
-        _currentSelectionState = PlayerController.RobotSelectionState.Unselected;
+        _currentSelectionState = RobotSelectionState.Unselected;
 
         foreach (GameObject cone in Weapons)
         {

@@ -251,7 +251,7 @@ GameObject:
   - component: {fileID: 7283362376283455193}
   - component: {fileID: 4139580829069496223}
   m_Layer: 0
-  m_Name: RobotTest
+  m_Name: PlayerRobot
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -288,10 +288,10 @@ MonoBehaviour:
   _robotStats: {fileID: 11400000, guid: a71e703f274da674b8b3d560cf428af7, type: 2}
   _weaponVisionConePrefab: {fileID: 5379137193031697172, guid: 58ce68819173d584b88ce7634cb804d6,
     type: 3}
+  Weapons: []
   _weaponVisionConeGreyPrefab: {fileID: 5379137193031697172, guid: a729deeca92716f4fa9e85022734f1d9,
     type: 3}
   _weaponsTarget: []
-  _gameManager: {fileID: 0}
   _rb: {fileID: 4139580829069496223}
   _bc: {fileID: 7283362376283455193}
   _ui: {fileID: 5734416051159955875}
@@ -324,7 +324,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: f660174d5d3c1d64f8a3682838ac7b7e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

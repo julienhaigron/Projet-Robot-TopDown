@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class Tile : MonoBehaviour
 {
@@ -44,6 +45,8 @@ public class Tile : MonoBehaviour
     }
 
     #endregion
+
+    public TextMeshPro _distanceUI;
 
     public GameObject _groundSR;
     public GameObject _movementSprite;

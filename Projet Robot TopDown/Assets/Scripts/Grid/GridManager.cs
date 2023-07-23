@@ -164,7 +164,7 @@ public class GridManager : MonoBehaviour
         if (leftNeibhbor != null)
             neighbors.Add(leftNeibhbor);
 
-        /*//Up Left
+        //Up Left
         leftNodeRow = row + 1;
         leftNodeColumn = column - 1;
         leftNeibhbor = AssignNeighbor(leftNodeRow, leftNodeColumn);
@@ -190,7 +190,7 @@ public class GridManager : MonoBehaviour
         leftNodeColumn = column + 1;
         leftNeibhbor = AssignNeighbor(leftNodeRow, leftNodeColumn);
         if (leftNeibhbor != null)
-            neighbors.Add(leftNeibhbor);*/
+            neighbors.Add(leftNeibhbor);
 
         return neighbors;
     }
@@ -219,7 +219,7 @@ public class GridManager : MonoBehaviour
 
     public void UpdateVisibleTiles()
     {
-        /*if (_visibleTiles == null)
+        if (_visibleTiles == null)
             _visibleTiles = new List<Tile>();
 
         foreach (Tile oldVisibleTile in _visibleTiles)
@@ -240,7 +240,7 @@ public class GridManager : MonoBehaviour
             tile.SetTileVisibility(Tile.TileVisibilityState.Visible);
         }
 
-        _visibleTiles = newVisibleTiles;*/
+        _visibleTiles = newVisibleTiles;
     }
 
     public void ActivateMovementCell(PlayerController robot)

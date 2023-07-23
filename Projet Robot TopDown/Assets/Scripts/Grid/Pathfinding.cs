@@ -8,9 +8,9 @@ public class Pathfinding : MonoBehaviour
     public List<Tile> Frontier(Vector2Int source, int range)
     {
         Dictionary<Vector2Int, Vector2Int> cameFrom = new Dictionary<Vector2Int, Vector2Int>();
-        Dictionary<Vector2Int, int> costSoFar = new Dictionary<Vector2Int, int>();
+        Dictionary<Vector2Int, float> costSoFar = new Dictionary<Vector2Int, float>();
 
-        PriorityQueue<Vector2Int, int> frontier = new PriorityQueue<Vector2Int, int>();
+        PriorityQueue<Vector2Int, float> frontier = new PriorityQueue<Vector2Int, float>();
         frontier.Enqueue(source, 0);
 
         cameFrom[source] = source;
@@ -25,14 +25,19 @@ public class Pathfinding : MonoBehaviour
             foreach (Tile next in GameManager.Instance.GridManager.GetNeighbors(currentTile))
             {
                 //int newCost = costSoFar[current] + graph.Cost(current, next);
-                int newCost = costSoFar[current] + 1;
+                float newCost;
+                if (EstimateHeuristicCost(current, next._location) == 1)
+                    newCost = costSoFar[current] + 1;
+                else
+                    newCost = costSoFar[current] + 1.3f;
                 if (!costSoFar.ContainsKey(next._location) || newCost < costSoFar[next._location])
                 {
                     costSoFar[next._location] = newCost;
-                    int priority = newCost + EstimateHeuristicCost(next._location, source);
+                    next._distanceUI.text = newCost.ToString();
+                    float priority = newCost + EstimateHeuristicCost(next._location, source);
                     cameFrom[next._location] = current;
 
-                    if (priority <= range)
+                    if (newCost <= range)
                         frontier.Enqueue(next._location, priority);
                 }
             }
@@ -51,9 +56,9 @@ public class Pathfinding : MonoBehaviour
     public List<Tile> FindPath(Vector2Int start, Vector2Int goal)
     {
         Dictionary<Vector2Int, Vector2Int> cameFrom = new Dictionary<Vector2Int, Vector2Int>();
-        Dictionary<Vector2Int, int> costSoFar = new Dictionary<Vector2Int, int>();
+        Dictionary<Vector2Int, float> costSoFar = new Dictionary<Vector2Int, float>();
 
-        PriorityQueue<Vector2Int, int> frontier = new PriorityQueue<Vector2Int, int>();
+        PriorityQueue<Vector2Int, float> frontier = new PriorityQueue<Vector2Int, float>();
         frontier.Enqueue(start, 0);
 
         cameFrom[start] = start;
@@ -72,12 +77,16 @@ public class Pathfinding : MonoBehaviour
 
             foreach (Tile next in GameManager.Instance.GridManager.GetNeighbors(currentTile))
             {
+                float newCost;
+                if (EstimateHeuristicCost(current, next._location) == 1)
+                    newCost = costSoFar[current] + 1;
+                else
+                    newCost = costSoFar[current] + 1.3f;
                 //int newCost = costSoFar[current] + graph.Cost(current, next);
-                int newCost = costSoFar[current] + 1;
                 if (!costSoFar.ContainsKey(next._location) || newCost < costSoFar[next._location])
                 {
                     costSoFar[next._location] = newCost;
-                    int priority = newCost + EstimateHeuristicCost(next._location, goal);
+                    float priority = newCost + EstimateHeuristicCost(next._location, goal);
                     frontier.Enqueue(next._location, priority);
                     cameFrom[next._location] = current;
                 }
