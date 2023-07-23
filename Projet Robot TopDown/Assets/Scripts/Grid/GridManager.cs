@@ -210,6 +210,8 @@ public class GridManager : MonoBehaviour
         return null;
     }
 
+    public Tile GetTile(Vector2Int location) => GetTile(location.x, location.y);
+
     public Tile GetTile(int x, int y)
     {
         return _grid[x, y];
@@ -217,7 +219,7 @@ public class GridManager : MonoBehaviour
 
     public void UpdateVisibleTiles()
     {
-        if (_visibleTiles == null)
+        /*if (_visibleTiles == null)
             _visibleTiles = new List<Tile>();
 
         foreach (Tile oldVisibleTile in _visibleTiles)
@@ -238,7 +240,7 @@ public class GridManager : MonoBehaviour
             tile.SetTileVisibility(Tile.TileVisibilityState.Visible);
         }
 
-        _visibleTiles = newVisibleTiles;
+        _visibleTiles = newVisibleTiles;*/
     }
 
     public void ActivateMovementCell(PlayerController robot)

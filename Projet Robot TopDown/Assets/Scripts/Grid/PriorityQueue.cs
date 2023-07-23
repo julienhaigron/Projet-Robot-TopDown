@@ -1,41 +1,37 @@
 using System.Collections;
+using System;
 using System.Collections.Generic;
+using UnityEngine;
 
-public class PriorityQueue
+public class PriorityQueue<TElement, TPriority>
 {
-    private List<Tile> tiles;
+    private List<Tuple<TElement, TPriority>> elements = new List<Tuple<TElement, TPriority>>();
 
-    public PriorityQueue()
+    public int Count
     {
-        tiles = new List<Tile>();
+        get { return elements.Count; }
     }
 
-    public int Length
+    public void Enqueue(TElement item, TPriority priority)
     {
-        get { return tiles.Count; }
+        elements.Add(Tuple.Create(item, priority));
     }
 
-    public bool Contains(Tile tile)
+    public TElement Dequeue()
     {
-        return tiles.Contains(tile);
-    }
+        Comparer<TPriority> comparer = Comparer<TPriority>.Default;
+        int bestIndex = 0;
 
-    public Tile GetFirstNode()
-    {
-        if (tiles.Count > 0)
+        for (int i = 0; i < elements.Count; i++)
         {
-            return tiles[0];
+            if (comparer.Compare(elements[i].Item2, elements[bestIndex].Item2) < 0)
+            {
+                bestIndex = i;
+            }
         }
-        return null;
-    }
 
-    public void Push(Tile node)
-    {
-        tiles.Add(node);
-    }
-
-    public void Remove(Tile node)
-    {
-        tiles.Remove(node);
+        TElement bestItem = elements[bestIndex].Item1;
+        elements.RemoveAt(bestIndex);
+        return bestItem;
     }
 }

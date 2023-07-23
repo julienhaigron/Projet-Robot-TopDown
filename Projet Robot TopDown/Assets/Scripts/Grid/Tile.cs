@@ -7,7 +7,7 @@ public class Tile : MonoBehaviour
     public int _autoCreationId;
     public Vector2Int _location;
 
-    private TileVisibilityState _currentVisibilityState = TileVisibilityState.Undiscovered;
+    private TileVisibilityState _currentVisibilityState = TileVisibilityState.Visible;
     public TileVisibilityState CurrentVisibilityState { get => _currentVisibilityState; set => _currentVisibilityState = value; }
     public enum TileVisibilityState
     {
@@ -107,12 +107,12 @@ public class Tile : MonoBehaviour
 
                         if (GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentSelectionState == PlayerController.RobotSelectionState.GhostActivated)
                         {
-                            pathToThisTile = GameManager.Instance.Pathfinding.FindPath(GameManager.Instance.TurnManager.CurrentGhost.CurrentTile, this);
+                            pathToThisTile = GameManager.Instance.Pathfinding.FindPath(GameManager.Instance.TurnManager.CurrentGhost.CurrentTile._location, this._location);
                             pathToThisTile.Remove(GameManager.Instance.TurnManager.CurrentGhost.CurrentTile);
                         }
                         else
                         {
-                            pathToThisTile = GameManager.Instance.Pathfinding.FindPath(GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentTile, this);
+                            pathToThisTile = GameManager.Instance.Pathfinding.FindPath(GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentTile._location, this._location);
                             pathToThisTile.Remove(GameManager.Instance.TurnManager.CurrentSelectedPlayer.CurrentTile);
                         }
 

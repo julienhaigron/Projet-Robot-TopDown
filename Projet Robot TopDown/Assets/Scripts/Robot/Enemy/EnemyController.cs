@@ -99,7 +99,7 @@ public class EnemyController : MonoBehaviour
         RotateWeaponAction rotateAction = new RotateWeaponAction(nextPatrolPosition, this, 0);
         GameManager.Instance.TurnManager.AddEnemyAIActionToQueue(this, rotateAction);
 
-        List<Tile> pathToNextPosition = GameManager.Instance.Pathfinding.FindPath(CurrentTile, nextPatrolPosition);
+        List<Tile> pathToNextPosition = GameManager.Instance.Pathfinding.FindPath(CurrentTile._location, nextPatrolPosition._location);
         int nbToDelete = pathToNextPosition.Count - _robotStats._actionPointsPerTurn;
         if (nbToDelete > 0)
         {

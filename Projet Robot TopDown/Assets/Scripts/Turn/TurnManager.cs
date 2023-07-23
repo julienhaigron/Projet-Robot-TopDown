@@ -8,13 +8,13 @@ public class TurnManager : MonoBehaviour
     public GameObject _ghostPrefab;
     private GhostController _currentGhost;
     public GhostController CurrentGhost { get => _currentGhost; set => _currentGhost = value; }
-    private List<Tuple<PlayerController, Queue<AIAction>>> _playerRobotsActions;
-    private List<bool> _playerRobotsActionsFullyFinished; //entier turn completion state
-    private List<bool> _playerRobotsActionFinished; //current action in turn
+    private List<Tuple<PlayerController, Queue<AIAction>>> _playerRobotsActions = new();
+    private List<bool> _playerRobotsActionsFullyFinished = new(); //entier turn completion state
+    private List<bool> _playerRobotsActionFinished = new(); //current action in turn
 
-    private List<Tuple<EnemyController, Queue<AIAction>>> _enemyRobotsActions;
-    private List<bool> _enemyRobotsActionsFullyFinished;
-    private List<bool> _enemyRobotsActionFinished;
+    private List<Tuple<EnemyController, Queue<AIAction>>> _enemyRobotsActions = new();
+    private List<bool> _enemyRobotsActionsFullyFinished = new();
+    private List<bool> _enemyRobotsActionFinished = new();
 
     public List<PlayerController> Players;
     private PlayerController _currentSelectedPlayer;
@@ -22,7 +22,7 @@ public class TurnManager : MonoBehaviour
 
     public List<EnemyController> Enemys;
 
-    private List<Tile> _currentPath;
+    private List<Tile> _currentPath = new();
     public List<Tile> CurrentPath { get => _currentPath; set => _currentPath = value; }
 
     private TurnState _currentTurnState;
