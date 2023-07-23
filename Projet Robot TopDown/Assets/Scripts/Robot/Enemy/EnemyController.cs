@@ -10,7 +10,6 @@ public class EnemyController : MonoBehaviour
     [SerializeField]
     private BoxCollider _bc;
 
-
     //actions
     private int _currentActionPoints;
     public int CurrentActionPoints { get => _currentActionPoints; set => _currentActionPoints = value; }
