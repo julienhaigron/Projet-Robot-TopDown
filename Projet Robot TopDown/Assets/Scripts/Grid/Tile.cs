@@ -49,10 +49,14 @@ public class Tile : MonoBehaviour
     public TextMeshPro _distanceUI;
 
     public GameObject _groundSR;
+    [Header("UI")]
     public GameObject _movementSprite;
     public GameObject _pathSprite;
     public GameObject _attackSprite;
     public GameObject _deadAttackSprite;
+    [Header("FogOfWar")]
+    public GameObject _undiscoveredFOW;
+    public GameObject _discoveredButNotVisibleFOW;
 
     public void SetTileVisibility(TileVisibilityState tileVisibilityState)
     {
@@ -62,13 +66,19 @@ public class Tile : MonoBehaviour
         {
             case TileVisibilityState.Undiscovered:
                 _groundSR.SetActive(false);
+                _undiscoveredFOW.SetActive(true);
+                _discoveredButNotVisibleFOW.SetActive(false);
                 break;
             case TileVisibilityState.NotVisible:
                 _groundSR.SetActive(true);
+                _undiscoveredFOW.SetActive(false);
+                _discoveredButNotVisibleFOW.SetActive(true);
                 //TODO : hide enemy on this tile (if exist)
                 break;
             case TileVisibilityState.Visible:
                 _groundSR.SetActive(true);
+                _undiscoveredFOW.SetActive(false);
+                _discoveredButNotVisibleFOW.SetActive(false);
                 //TODO : show enemy on this tile (if exist)
                 break;
         }
